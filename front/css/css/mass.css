@@ -1,0 +1,16 @@
+
+.panel-footer a {
+    display: block;
+    text-align:center;
+    text-decoration: none;
+    width: 100%;
+}
+
+#main-content img{
+	width: 250px;
+	height:250px;
+}
+
+.myheight{
+	height:290px;
+}

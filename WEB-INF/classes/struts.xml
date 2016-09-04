@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+<struts>
+	<!-- 动态方法调用 -->
+	<constant name="struts.enable.DynamicMethodInvocation" value="false"/>
+	<!-- 开发者模式 -->
+	<constant name="struts.devMode" value="false"/>
+	<!-- 文件上传最大值 -->
+	<constant name="struts.multipart.maxSize" value="1024000000" />
+     
+     <package name="json" namespace="/json" extends="json-default">
+    	<action name="*_*" class="{1}" method="{2}">
+    		<result name="success" type="json">
+    			<param name="root">jsonObject</param>
+    			<param name="encoding">UTF-8</param>
+    		</result>
+    		<result name="error" type="json">
+    			<param name="root">code</param>
+    		</result>
+    		
+    	</action>
+    </package>
+    
+     <package name="yc" namespace="/yc" extends="struts-default">
+    	<action name="*_*_*" class="{1}" method="{2}">
+    		<result name="back">/WEB-INF/back/{3}.html</result>
+    		<result name="front">/front/{3}.html</result>
+    		<result name="success">/back/{3}.html</result>
+    		<result name="login">/back/backlogin.html</result>
+    	</action>
+    </package>
+    
+     <package name="/" namespace="/" extends="struts-default">
+    	<action name="*_*_*" class="{1}" method="{2}">
+    		<result name="back">/WEB-INF/back/{3}.html</result>
+    		<result name="front">{3}.html</result>
+    		<result name="success">/back/{3}.html</result>
+    		<result name="login">/back/backlogin.html</result>
+    		
+    	</action>
+    	
+    	
+    	
+    </package>
+    
+   
+</struts>

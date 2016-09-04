@@ -1,0 +1,596 @@
+﻿<table id="studentStyle"> </table>
+
+<div id="dstudentStyle" class="easyui-dialog" data-options="title:'简介详细查看',inline:true,closed:true" style="width:1000px;height:300px;padding:10px;">
+		<span id="mydstudentStyle"></span>
+</div>
+
+<div id="ddstudentStyle" class="easyui-dialog" data-options="title:'搜索框',inline:true,closed:true" style="width:1000px;height:80px;padding:10px;">
+		<label for="dsstr_title">标题关键字:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:100px" type="text" id="dprtr_title" name="dsstr_title"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dsstr_time">时间:&nbsp;&nbsp;</label>
+		<input class="easyui-datebox" style="width:100px" type="text" id="dsstr_time" name="dsstr_time"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dsstr_author">作者:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="dsstr_author" name="dsstr_author"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dsstr_from">来源:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="dsstr_from" name="dsstr_from"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="javascript:void(0);" onClick="searchFss()" class="easyui-linkbutton" iconCls="icon-search">查找</a>
+</div>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+.littlebutton{
+	color:blue;
+	margin-left:5px;
+}
+
+.hidden {
+	opacity: 0;
+	position: absolute;
+	z-index: 10;
+	width:25px;
+	margin-left:-190px;
+	margin-top:-5px;
+}
+
+.showPic{
+	opacity:0;
+	z-index: 20;
+	margin-left: 300px;
+	margin-top: -50px;
+	position: absolute;
+}
+</style>
+
+
+
+<div id="studentStyleUpdateDialog" class="easyui-dialog" style="width:1000px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#dlg-buttons">
+	<form id="studentStyleform" method="post" enctype="multipart/form-data">
+		<table style="width:900px;">
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>姓名:</label> <input id="ss_title" class="easyui-textbox" required="true">
+						<input type="hidden" id="ss_tid"/><!-- 存类型id的隐藏域 -->
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="ss_picDiv" onmouseover="ss_showPic()" onmouseout="ss_movePic()">
+
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>编辑:</label> <input id="ss_author" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="ss_videoDiv">
+
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>来源:</label> <input id="ss_from" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="ss_fileDiv">
+
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>时间:</label><input id="ss_time" class="easyui-textbox" required="true"/>
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>是否对外公开:</label> 
+						<select id="ss_temp2">
+							<option selected="selected">公开</option>
+							<option>不公开</option>
+						</select>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:400px;resize:none"  id="ss_article"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:updateStudentStyle()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">修改</a> 
+</div>
+
+
+<script>
+	CKEDITOR.replace( 'ss_article', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+</script>
+
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#studentStyle").edatagrid({
+			url : "../json/trendsAction_getTrendsByType",//查询时加载的URL
+			queryParams:{"trends.types_id":10016},
+			destroyUrl : "../json/trendsAction_delTrends",
+			idField : "tr_id", //标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,	
+			iconCls : "icon-tip",//图标
+			rownumbers : true,	//行号     最左边显示行号
+			title : "学子风采管理",
+			nowrap : true,//表格中的文字可以换行、默认是false、可以换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'tr_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'dec',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			remoteSort:false,
+			columns : [[ //每个列具体内容
+			{
+				field : 'tr_ids',
+				title : '编号',
+				width : 50,
+				align:'center',
+				checkbox:true
+			}, {
+				field : 'tr_id',
+				title : '新闻编号',
+				align:'center',
+				sortable:true,
+				width : 50,
+			}, {
+				field : 'tr_title',
+				title : '姓名',
+				align:'center',
+				width : 90,
+			}, {
+				field : 'tr_time',
+				title : '发布时间',
+				align:'center',
+				width : 60,	
+			}, {
+				field : 'tr_author',
+				title : '作者',
+				align:'center',
+				width : 50,
+			}, {
+				field : 'tr_from',
+				title : '来源',
+				align:'center',
+				width : 50,
+			},  {
+				field : 'tr_article',
+				title : '简介',
+				align:'center',
+				width : 100,
+				formatter:function(value,row,index){
+					var e = "<a href=\"javascript:lookstudentStyleInfo('"+html2Escape(value)+"')\" >查看</a> ";
+					return e;
+				}
+			} ] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布学子风采','loginAction_backGoTo_addStudentStyle');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#studentStyle').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openStudentStyleUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findssInfo();
+				}
+			} ]
+		});
+	});
+
+	function lookstudentStyleInfo(value){
+		$("#dstudentStyle").dialog('open');
+		$("#mydstudentStyle").html(value);
+	}
+	//打开查找框
+	function findssInfo(){
+		$("#ddstudentStyle").dialog('open');
+	}
+
+	//查找
+	function searchFss(){
+		$("#ddstudentStyle").dialog('close');
+		var dsstr_title=$.trim($("#dsstr_title").val());
+		var dsstr_author=$.trim($("#dsstr_author").val());
+		var dsstr_from=$.trim($("#dsstr_from").val());
+		var dsstr_time=$.trim($("#dsstr_time").datebox("getValue"));
+		datagrid = $("#studentStyle").edatagrid({
+			url : "../json/trendsAction_findTrendsByMap",//查询时加载的URL
+			queryParams:{"trends.tr_time":dsstr_time,"trends.types_id":10016,"trends.tr_title":dsstr_title,"trends.tr_author":dsstr_author,"trends.tr_from":dsstr_from,"page":1,"rows":5},
+			
+			toolbar : [ {
+				text : '返回',
+				iconCls : 'icon-undo',
+				handler : function() {
+					backstudentStyle();
+				}
+			}, '-',{
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布学子风采','loginAction_backGoTo_addStudentStyle');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#studentStyle').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openStudentStyleUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findssInfo();
+				}
+			} ]
+		});
+		
+	}
+
+	function backstudentStyle(){
+		datagrid = $("#studentStyle").edatagrid({
+			url : "../json/trendsAction_getTrendsByType",//查询时加载的URL
+			toolbar : [{
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布学子风采','loginAction_backGoTo_addStudentStyle');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#studentStyle').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openStudentStyleUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findssInfo();
+				}
+			}  ]
+		});
+	}
+	//打开修改对话框
+	function openStudentStyleUpdateDialog(){
+		var rows = $("#studentStyle").datagrid("getChecked");
+		if(rows.length<=0){
+			$.messager.show({
+				title:'错误提示',
+				msg:'请选择要修改的数据',
+				timeout:2000,
+				showType:'slide'
+			});
+			return;
+		}
+		var id = rows[0].tr_id;
+		$('#studentStyleUpdateDialog').dialog('open').dialog('setTitle', '修改通知公告');
+		//$('#foodfm').form('clear');
+		
+		$.post('../json/trendsAction_getTrendsById',{'trends.tr_id':id},function(data){
+			var tid = data.jsonObject[0].tr_id;
+			var title = data.jsonObject[0].tr_title;
+			var author = data.jsonObject[0].tr_author;
+			var from = data.jsonObject[0].tr_from;
+			var article = data.jsonObject[0].tr_article;
+			var picPath = data.jsonObject[0].tr_pic;
+			var videoid = data.jsonObject[0].tr_video;
+			var fileid = data.jsonObject[0].tr_file;
+			var videoName = data.jsonObject[0].temp1;
+			var time = data.jsonObject[0].tr_time;
+			var temp2 = data.jsonObject[0].temp2;
+			$("#ss_time").val(htmlEscape(time));
+			$("#ss_temp2").val(htmlEscape(temp2));
+			$("#ss_tid").val(tid);
+			$("#ss_title").val(htmlEscape(title));
+			$("#ss_author").val(htmlEscape(author));
+			$("#ss_from").val(htmlEscape(from));
+			
+			
+			//判断该动态有没有图片，决定在图片位置显示的内容
+			if(picPath != null && picPath !=""){
+				$("#ss_picDiv").html("图片:<a class='littlebutton'  href='javascript:look_Pic(\""+picPath+"\")'>详细查看</a><a class='littlebutton' href='javascript:ss_delPic(\""+picPath+"\")'>删除</a>"+
+					"<input type='hidden' id='hss_pic'/>");	//存图片路径的隐藏域
+				$("#hss_pic").val(picPath);		//将图片路径放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#ss_picDiv").html("图片:<input type='file' name='tr_files' id='ss_replacePic' accept='image/gif,image/jpeg,image/png' multiple='true' onchange=\"previewMultipleImage(this,'showPicLook')\"/>"+
+				"<input type='hidden' id='hss_pic'/>");		//存图片路径的隐藏域
+			}
+			
+			
+			//判断该动态有没有视频
+			if(videoName != null && videoName !=""){
+				$("#ss_videoDiv").html("视频:<span id='ss_video' style='margin-right:70px'></span>"+
+					"<a class='littlebutton'>替换</a><a class='littlebutton' href='javascript:ss_delVideo()'>删除</a>"+
+					"<input type='file' class='hidden' name='tr_files' id='ss_replaceVideo' accept='audio/mp4,video/mp4,MPEG-4 Audio/Video' onchange='ss_videoChanged()' />"+
+					"<input type='hidden' id='hss_video'/>");		//存视频id的隐藏域
+				$("#ss_video").html(videoName);
+				$("#hss_video").val(videoid);	//将视频id放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#ss_videoDiv").html("视频:<input type='file' name='tr_files'  id='ss_replaceVideo' accept='audio/mp4,video/mp4,MPEG-4 Audio/Video'/>"+
+				"<input type='hidden' id='hss_video'/>");		//存视频id的隐藏域
+			}
+			
+			//判断该动态有没有文件
+			if(fileid != null && fileid !=""){
+				$("#ss_fileDiv").html("文件:<a href='javascript:checkFileList(\""+fileid+"\")'>查看详情</a>"+
+				"<a class='littlebutton' href='javascript:ss_delFile()'>删除</a>"+
+				"<input type='hidden' id='hss_file'/>");		//存文件id的隐藏域
+				$("#ss_file").html(fileid);
+				$("#hss_file").val(fileid);		//将文件id放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#ss_fileDiv").html("文件:<input type='file' name='tr_files' id='ss_replaceFile' accept='application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip' multiple='true'/>"+
+				"<input type='hidden' id='hss_file'/>");		//存文件id的隐藏域
+			}
+			CKEDITOR.instances.ss_article.setData( article );
+		},"json");
+	}
+	
+	function ss_picChanged(){
+    	$("#ss_replacePic").css("opacity",1);
+		$("#ss_pic").css("opacity",0);
+		previewImage(this,'showPic','previewImg');
+    }
+    
+    function ss_videoChanged(){
+    	$("#ss_replaceVideo").css("opacity",1);
+		$("#ss_video").css("opacity",0);
+    }
+    
+    function ss_fileChanged(){
+    	$("#ss_replaceFile").css("opacity",1);
+		$("#ss_file").css("opacity",0);
+    }
+
+	//修改动态时删除图片
+	function ss_delPic(picPath){
+		$("#ss_picDiv").html("图片:<input type='file' name='tr_files' id='ss_replacePic' accept='image/gif,image/jpeg,image/png' multiple='true' onchange=\"previewMultipleImage(this,'showPicLook')\"/>"+
+				"<input type='hidden' id='hss_pic'/>");		//存图片路径的隐藏域
+		$("#hss_pic").val("");
+	}	
+	
+	//修改动态时删除视频
+	function ss_delVideo(){
+		$("#hss_video").val("");
+		$("#ss_replaceVideo").css("opacity",0);
+		$("#ss_video").css("opacity",0);
+	}
+	
+	//修改动态时删除文件
+	function ss_delFile(){
+		$("#ss_fileDiv").html("文件:<input type='file' name='tr_files' id='ss_replaceFile' accept='application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip' onchange='ss_fileChanged()' multiple='true'/>"+
+		"<input type='hidden' id='hss_file'/>");
+	}
+	
+	//修改
+	function updateStudentStyle(){
+		var tid = $("#ss_tid").val();
+		var title =html2Escape( $("#ss_title").val());
+		var author =html2Escape( $("#ss_author").val());
+		var from =html2Escape( $("#ss_from").val());
+		var pic = $("#hss_pic").val();
+		var video = $("#hss_video").val();
+		var file = $("#hss_file").val();
+		var article = CKEDITOR.instances.ss_article.getData();
+		var time = $("#ss_time").val();
+		var temp2 = $.trim($("#ss_temp2").find("option:selected").text());
+		if(time.length!=0){    
+        	var reg = /^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/;     
+       		var r = time.match(reg);     
+        	if(r==null){   
+            		$.messager.alert('错误提示','对不起，您输入的日期格式不正确!','error');//请将“日期”改成你需要验证的属性名称!
+            		return;   
+         	} 
+       	}else{
+       		$.messager.alert('错误提示','日期不能为空','error');
+       		return;   
+       	}  
+		if($.trim(title)==''){
+			$.messager.alert('错误提示','标题不能为空','error');
+			return;
+		}
+		
+		if($.trim(author)==''){
+			$.messager.alert('错误提示','作者不能为空','error');
+			return;
+		}
+		
+		if($.trim(from)==''){
+			$.messager.alert('错误提示','来源不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(article))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		//如果没有要上传的
+		if($("#ss_replacePic").val()=="" && $("#ss_replaceVideo").val()=="" && $("#ss_replaceFile").val()==""){
+			$.post('../json/trendsAction_updateTrends',{
+				'trends.tr_id':tid,
+				'trends.tr_title':title,
+				'trends.tr_author':author,
+				'trends.tr_from':from,
+				'trends.tr_pic':pic,
+				'trends.tr_article':article,
+				'trends.tr_video':video,
+				'trends.tr_file':file,
+				'trends.tr_time':time,
+				'trends.temp2':temp2
+			},function(data){
+				data = parseInt($.trim(data));
+				if(data>=1){
+					$.messager.show({
+						title:'成功提示',
+						msg:'通知修改成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+					//关闭窗口
+					$('#studentStyleUpdateDialog').window('close');
+					
+					//刷新数据
+					$("#studentStyle").datagrid('load',{"trends.types_id":10016});
+				}else{
+					$.messager.alert('错误提示','修改失败,请重试','error');
+				}
+			});
+		}
+		//如果有要上传的
+		else{
+			progress();//显示进度条
+			$.ajaxFileUpload({
+				url:'../json/trendsAction_updateAndUploadTrends',
+				secureuri:false,
+				data:{'trends.tr_id':tid,
+					'trends.tr_title':title,
+					'trends.tr_author':author,
+					'trends.tr_from':from,
+					'trends.tr_article':article,
+					'trends.tr_pic':pic,
+					'trends.tr_video':video,
+					'trends.tr_file':file,
+					'trends.tr_time':time,
+					'trends.temp2':temp2
+				},
+				dataType:'json',
+				fileElementId:['ss_replacePic','ss_replaceVideo','ss_replaceFile'],	//图片文本框id
+				success:function(data){
+					$.messager.progress('close');//关闭进度条
+					data = parseInt($.trim(data));
+					if(data>=0){
+						$.messager.show({
+							title:'成功提示',
+							msg:'文件上传成功！',
+							timeout:2000,
+							showType:'slide'
+						});
+						//关闭窗口
+						$('#studentStyleUpdateDialog').window('close');
+						
+						//刷新数据
+						$("#studentStyle").datagrid('load',{"trends.types_id":10016});
+					}else{
+						$.messager.alert('错误提示','文件上传失败,请选择规定格式的文件','error');
+					}
+				},
+				error:function(data,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert('错误提示','发布失败，请检查网络...','error');
+				}
+			});
+		}
+	}
+	
+	function Open(text, url) { 
+         if ($("#tabs").tabs('exists', text)) { 
+            $('#tabs').tabs('select', text); 
+        }else { 
+            $('#tabs').tabs('add', { 
+                title : text, 
+                closable : true, 
+                href : url 
+            }); 
+        } 
+    } 
+
+	function ShowImage(value, img) {
+		img.src = value;
+		img.style.visibility = "visible";
+	}
+	function ss_showPic(){
+		var imgsrc=$("#ss_previewImg").attr('src');	
+		if(imgsrc!=null && imgsrc!=''){
+			$("#ss_showPic").css("opacity",1);
+		}
+		
+	}
+	function ss_movePic(){
+		$("#ss_showPic").css("opacity",0);
+	}
+</script>

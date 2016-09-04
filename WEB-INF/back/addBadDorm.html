@@ -1,0 +1,506 @@
+﻿
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+
+
+<div id="addBadDormWindow" style="width: 1000px; padding: 10px 20px"
+	buttons="#publicBadDorm-buttons">
+	<div class="ftitle">
+		发布通报公告
+	</div>
+	<form id="addBadDormform" method="post" enctype="multipart/form-data">
+		<div class="fitem" style="inline">
+			<label>
+				公告时间:
+			</label>
+			<span>
+				<span id="abd_dormyear"></span>年 &nbsp;&nbsp;
+				<select id="abd_badDormTerm" onchange="checkBadDormByWeek()">
+					<option>上学期</option>
+					<option>下学期</option>
+				</select>&nbsp;&nbsp;
+				第<input id="abd_time" onKeyUp="checkBadDormByWeek()" class="easyui-numberbox" required="true" style="width: 20px">周
+			</span>&nbsp;&nbsp;
+		</div>
+		<label>总结：</label><br/>
+		<textarea id="adp_notice" style="width: 800px; height: 100px; resize: none"></textarea><br/>
+		<div style="height: 300px;margin-bottom: 10px;padding-bottom: 10px">
+			<label>
+				通报寝室:
+			</label>
+			<table id="addBadDorm"></table> <br/>
+		</div>
+		<div style="height: 300px;margin-bottom: 10px;padding-bottom: 10px">
+			<label>
+				文明寝室:
+			</label>
+			<table id="addGoodDorm"></table>
+		</div>
+	</form>
+</div>
+<div id='publicBadDorm-buttons' class='dialog-button'>
+	<a id='publicBadDorm-buttonsa' href='javascript:addDormPublic()' class='easyui-linkbutton c6' iconCls='icon-ok' style='width: 90px; margin-right: 200px'>发布</a>
+</div>
+	
+
+<div id="addBadDormDialog1" class="easyui-dialog" style="width:800px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#BadDorm-buttons1">
+	<form id="addBadDormInfo1" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							通报时间:
+						</label>
+						<span id="abdd_week">
+							
+						</span>&nbsp;&nbsp;
+					</div>	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							通报寝室号:
+						</label>
+						<input id="abdd_id" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							寝室成员:
+						</label>
+						<input id="abdd_member" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							所在班级:
+						</label>
+						<input id="abdd_class" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							辅导员:
+						</label>
+						<input id="abdd_teacher" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<label>
+						通报原因:
+					</label>
+					<div class="fitem">
+						<textarea style="width: 700px; height: 200px; resize: none"
+							id="abdd_reason" name="abd_reason"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="BadDorm-buttons1" class="dialog-button">
+	<a href="javascript:addBadDorm1()" class="easyui-linkbutton c6" 
+		iconCls="icon-ok" style="width:90px;margin-right:200px">添加</a> 
+</div>
+
+<div id="addGoodDormDialog1" class="easyui-dialog" style="width:800px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#GoodDorm-buttons1">
+	<form id="addGoodDormInfo1" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							通报时间:
+						</label>
+						<span id="agdd_week">
+							
+						</span>&nbsp;&nbsp;
+					</div>	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							通报寝室号:
+						</label>
+						<input id="agdd_id" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							寝室成员:
+						</label>
+						<input id="agdd_member" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							所在班级:
+						</label>
+						<input id="agdd_class" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							辅导员:
+						</label>
+						<input id="agdd_teacher" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="GoodDorm-buttons1" class="dialog-button">
+	<a href="javascript:addGoodDorm1()" class="easyui-linkbutton c6" 
+		iconCls="icon-ok" style="width:90px;margin-right:200px">添加</a> 
+</div>
+
+<script type="text/javascript">
+	$(function() {
+		var date = new Date();
+		var year = date.getFullYear();
+		$("#abd_dormyear").html(year);
+	});
+	
+	//查看该周次的通报寝室
+	function checkBadDormByWeek(){
+		var weeknum = $("#abd_time").val();
+				
+		if(weeknum =="" || weeknum == null){
+			alert("请选择通报周次 ");
+			return;
+		}
+		
+		var rowEditor = undefined; //用于存放当前要编辑的行
+		var year = $("#abd_dormyear").html()+"年";
+		var term = $("#abd_badDormTerm").val();
+		var week = "第"+$.trim($("#abd_time").val())+"周";
+		var time = year+term+week;
+
+		var datagrid = $("#addBadDorm").edatagrid({
+			url: '../json/dormNoticeAction_getBadDormByWeek',
+			queryParams: {'dormNotices.notice_time':$("#abd_dormyear").html()+"年"+$("#abd_badDormTerm").val()+"第"+$.trim($("#abd_time").val())+"周"},
+			destroyUrl : "../json/dormNoticeAction_delBadDorm",
+			idField : "noitce_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			fit : true,//自动补全
+			fitColumns : true,	
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'noitce_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'desc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+				{
+					field : 'noitce_id',
+					width : 5,
+					align:'center',
+					checkbox:true
+				}, {
+					field : 'dorm_id',
+					title : '通报寝室号',
+					align:'center',
+					width : 30,
+				}, {
+					field : 'dorm_member',
+					title : '寝室成员',
+					align:'center',
+					width : 50,	
+				}, {
+					field : 'dorm_class',
+					title : '所在班级',
+					align:'center',
+					width : 40,
+				}, {
+					field : 'teacher',
+					title : '辅导员',
+					align:'center',
+					width : 30,
+				} , {
+					field : 'reson',
+					title : '通报原因',
+					align:'center',
+					width : 70,
+				}
+			 ]],
+			toolbar : [ {
+				text : '添加寝室',
+				iconCls : 'icon-add',
+				handler : function() {
+					appendBadDorm();
+				}
+			}, '-', {
+				text : '删除寝室',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#addBadDorm').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '修改',
+				iconCls : 'icon-edit',
+				handler : function() {
+					
+				}
+			}],
+			onLoadSuccess:function (data){
+				var datagrid1 = $("#addGoodDorm").edatagrid({
+					url: '../json/dormNoticeAction_getGoodDormByWeek',
+					queryParams: {'dormNotices.notice_time':$("#abd_dormyear").html()+"年"+$("#abd_badDormTerm").val()+"第"+$.trim($("#abd_time").val())+"周"},
+					destroyUrl : "../json/dormNoticeAction_delBadDorm",
+					idField : "noitce_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+					fit : true,//自动补全
+					fitColumns : true,	
+					nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+					sortName : 'noitce_id',//设置默认排序时的 字段（必须是field中的一个字段）
+					sortOrder : 'desc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+					columns : [[ //每个列具体内容
+						{
+							field : 'noitce_id',
+							width : 5,
+							align:'center',
+							checkbox:true
+						}, {
+							field : 'dorm_id',
+							title : '通报寝室号',
+							align:'center',
+							width : 30,
+						}, {
+							field : 'dorm_member',
+							title : '寝室成员',
+							align:'center',
+							width : 50,	
+						}, {
+							field : 'dorm_class',
+							title : '所在班级',
+							align:'center',
+							width : 40,
+						}, {
+							field : 'teacher',
+							title : '辅导员',
+							align:'center',
+							width : 30,
+						} , {
+							field : 'reson',
+							title : '通报原因',
+							align:'center',
+							width : 70,
+						}
+					 ]],
+					 toolbar : [ {
+						text : '添加寝室',
+						iconCls : 'icon-add',
+						handler : function() {
+							appendGoodDorm();
+						}
+					}, '-', {
+						text : '删除寝室',
+						iconCls : 'icon-remove',
+						handler : function() {
+							$('#addGoodDorm').edatagrid('destroyRow');
+						}
+					}, '-', {
+						text : '修改',
+						iconCls : 'icon-edit',
+						handler : function() {
+							
+						}
+					}],
+					onLoadSuccess:function (data) {
+						$.post("../json/dormNoticeAction_inspectDormNotice",{"dormPublic.public_week":time},function(data){
+							data = parseInt($.trim(data));
+							if(data>0){
+								alert("本周次公告已经发布!");
+								$('#publicBadDorm-buttonsa').linkbutton('disable');
+							}
+						});
+						var num1 = $("#addBadDorm").datagrid('getRows');
+						var num2 = $("#addGoodDorm").datagrid('getRows');
+						var num = num1.length+num2.length;
+						if(num<1){
+							$('#publicBadDorm-buttonsa').linkbutton('disable');
+						}else{
+							$('#publicBadDorm-buttonsa').linkbutton('enable');
+						}
+					}
+				});
+			}
+		});
+		
+		
+	}	
+
+	//打开添加通报寝室的对话框
+	function appendBadDorm(){
+		var weeknum = $("#abd_time").val();
+		if(weeknum =="" || weeknum == null){
+			alert("请选择通报周次 ");
+			return;
+		}
+		var weektime = $("#abd_dormyear").html()+"年"+$("#abd_badDormTerm").val()+"第"+$.trim($("#abd_time").val())+"周";
+		$("#abdd_week").html(weektime);
+		$('#addBadDormDialog1').dialog('open').dialog('setTitle', '添加通报宿舍');
+		$('#addBadDormInfo1').form('clear');
+	}
+	
+	
+	//打开添加文明寝室的对话框
+	function appendGoodDorm(){
+		var weeknum = $("#abd_time").val();
+		if(weeknum =="" || weeknum == null){
+			alert("请选择通报周次 ");
+			return;
+		}
+		var weektime = $("#abd_dormyear").html()+"年"+$("#abd_badDormTerm").val()+"第"+$.trim($("#abd_time").val())+"周";
+		$("#agdd_week").html(weektime);
+		$('#addGoodDormDialog1').dialog('open').dialog('setTitle', '添加文明宿舍');
+		$('#addGoodDormInfo1').form('clear');
+	}
+	
+	
+	//添加通报宿舍
+	function addBadDorm1() {
+		var time = $("#abdd_week").html();
+		var id = $("#abdd_id").val();
+		var member = $("#abdd_member").val();
+		var aclass = $("#abdd_class").val();
+		var teacher = $("#abdd_teacher").val();
+		var intro = $("#abdd_reason").val();
+		$.post('../json/dormNoticeAction_addDormNotice', {
+			'dormNotices.dorm_id' : id,
+			'dormNotices.notice_time' : time,
+			'dormNotices.dorm_member' : member,
+			'dormNotices.dorm_class' : aclass,
+			'dormNotices.dorm_status' : 1,
+			'dormNotices.teacher' : teacher,
+			'dormNotices.reson' : intro
+		}, function(data) {
+			data = parseInt($.trim(data));
+			if (data > 0) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '通报宿舍发布成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				//关闭窗口
+				$('#addBadDormDialog1').window('close');
+				//刷新数据
+				$("#addBadDorm").datagrid('reload');
+				$("#updateDormPublicTable").datagrid('reload');
+			} else {
+				$.messager.alert('错误提示', '通报宿舍发布失败,请重试', 'error');
+			}
+		});
+	}
+	
+	//添加文明寝室
+	function addGoodDorm1(){
+		var time =  $("#agdd_week").html();
+		var id = $("#agdd_id").val();
+		var member = $("#agdd_member").val();
+		var aclass = $("#agdd_class").val();
+		var teacher = $("#agdd_teacher").val();
+		$.post('../json/dormNoticeAction_addDormNotice', {
+			'dormNotices.dorm_id' : id,
+			'dormNotices.notice_time' : time,
+			'dormNotices.dorm_member' : member,
+			'dormNotices.dorm_class' : aclass,
+			'dormNotices.dorm_status' : 0,
+			'dormNotices.teacher' : teacher,
+			'dormNotices.reson' :null
+		}, function(data) {
+			data = parseInt($.trim(data));
+			if (data > 0) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '文明寝室发布成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				$('#addGoodDormDialog1').window('close');
+				//刷新数据
+				$("#addGoodDorm").datagrid('reload');
+				$("#updateDormPublicTable").datagrid('reload');
+			} else {
+				$.messager.alert('错误提示', '通报宿舍发布失败,请重试', 'error');
+			}
+		});
+	}
+	
+	//发布宿舍通报公告
+	function addDormPublic(){
+		var year = $("#abd_dormyear").html()+"年";
+		var term = $("#abd_badDormTerm").val();
+		var week = "第"+$.trim($("#abd_time").val())+"周";
+		var time = year+term+week;
+		var notice = $("#adp_notice").val();
+		
+		var weeknum = $("#abd_time").val();
+		if(weeknum =="" || weeknum == null){
+			alert("请选择通报周次 ");
+			return;
+		}
+		
+		$.post("../json/dormNoticeAction_addDormPublic",{
+			'dormPublic.public_week':time,
+			'dormPublic.public_notice':notice
+		},function(data){
+			data = parseInt($.trim(data));
+			if (data > 0) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '通报公告发布成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				$('#tabs').tabs('close','发布通报公告');
+				//刷新数据
+				$("#badDorm").datagrid('reload');
+			} else {
+				$.messager.alert('错误提示', '通报公告发布失败,请重试', 'error');
+			}
+		});
+	}
+</script>

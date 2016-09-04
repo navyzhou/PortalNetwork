@@ -1,0 +1,156 @@
+﻿
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+
+
+<div id="addGoodDormWindow" style="width: 1000px; height:450px; padding: 10px 20px" buttons="#BadDorm-buttons">
+	<form id="addBadDormInfo" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							通报时间:
+						</label>
+						<span>
+							<span id="bd_dormyear"></span>年 &nbsp;&nbsp;
+							<select id="bd_badDormTerm">
+								<option>上学期</option>
+								<option>下学期</option>
+							</select>&nbsp;&nbsp;
+							第<input id="bd_time" class="easyui-numberbox" required="true" style="width: 20px">周
+						</span>&nbsp;&nbsp;
+					</div>	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							通报寝室号:
+						</label>
+						<input id="bd_id" class="easyui-textbox" required="true">
+						<input type="hidden" id="noitce_id" />
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							寝室成员:
+						</label>
+						<input id="bd_member" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							所在班级:
+						</label>
+						<input id="bd_class" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							辅导员:
+						</label>
+						<input id="bd_teacher" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<label>
+						通报原因:
+					</label>
+					<div class="fitem">
+						<textarea style="width: 700px; height: 200px; resize: none"
+							id="bd_reason" name="abd_reason"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="BadDorm-buttons" class="dialog-button">
+	<a href="javascript:addBadDorm()" class="easyui-linkbutton c6" 
+		iconCls="icon-ok" style="width:90px;margin-right:200px">添加</a> 
+</div>
+
+
+<script type="text/javascript">
+	$(function() {
+		var date = new Date();
+		var year = date.getFullYear();
+		$("#bd_dormyear").html(year);
+	});
+
+	//发布通报宿舍
+	function addBadDorm() {
+		var date = new Date();
+		var year = date.getFullYear()+"年";
+		var term = $("#bd_badDormTerm").val();
+		var week = "第"+$.trim($("#bd_time").val())+"周";
+		var time = year+term+week;
+		var id = $("#bd_id").val();
+		var member = $("#bd_member").val();
+		var aclass = $("#bd_class").val();
+		var teacher = $("#bd_teacher").val();
+		var intro = $("#bd_reason").val();
+		$.post('../json/dormNoticeAction_addDormNotice', {
+			'dormNotices.dorm_id' : id,
+			'dormNotices.notice_time' : time,
+			'dormNotices.dorm_member' : member,
+			'dormNotices.dorm_class' : aclass,
+			'dormNotices.dorm_status' : 1,
+			'dormNotices.teacher' : teacher,
+			'dormNotices.reson' : intro
+		}, function(data) {
+			data = parseInt($.trim(data));
+			if (data > 0) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '通报宿舍发布成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				//关闭窗口
+				$('#tabs').tabs('close','添加通报寝室');
+				//刷新数据
+				$("#addBadDorm").datagrid('reload');
+				$("#updateDormPublicTable").datagrid('reload');
+			} else {
+				$.messager.alert('错误提示', '通报宿舍发布失败,请重试', 'error');
+			}
+		});
+	}
+</script>
+	

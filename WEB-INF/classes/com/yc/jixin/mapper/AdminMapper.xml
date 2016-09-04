@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+
+	<select id="adminlogin" parameterType="Admin" resultType="Admin">
+		select aid,aname,apassword,astatus from jixinadmin where aname=#{aname} and apassword=#{apassword}
+	</select>
+	
+	<select id="getAdminStatus" parameterType="String" resultType="Integer">
+		select astatus from jixinadmin where aname=#{aname}
+	</select>
+	
+	<select id="getAdminPwdById" parameterType="String" resultType="String">
+		select apassword from jixinadmin where aname=#{aname}
+	</select>
+	
+	<select id="getAllAdmin" resultType="Admin">
+		select * from jixinadmin where astatus = 1
+	</select>
+	
+	<insert id="insertAdmin" parameterType="Admin">
+		insert into jixinadmin values(seq_jixinadmin_id.nextval,#{aname},'cb54db33854702097a70d3d88184183f7cd630c7',1,null,null)
+	</insert>
+	
+	<delete id="delAdmin" parameterType="Integer">
+		delete from jixinadmin where aid = #{aid}
+	</delete>
+	
+	<update id="updateAdminPwd" parameterType="Admin">
+		update jixinadmin
+		<set>
+			apassword = #{apassword},
+		</set>
+		where aname = #{aname}
+	</update>
+	
+	<update id="resetPwd" parameterType="Integer">
+		update jixinadmin set apassword = 'cb54db33854702097a70d3d88184183f7cd630c7' where aid = #{id}
+	</update>
+	
+	<select id="getCountByName" parameterType="String" resultType="Integer">
+		select count(*) from jixinadmin where aname = #{aname}
+	</select>
+</mapper>

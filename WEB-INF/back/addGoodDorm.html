@@ -1,0 +1,142 @@
+﻿<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+
+
+<div id="addGoodDormWindow" style="width: 1000px; height:600px; padding: 10px 20px" buttons="#addGoodDormButtons">
+	<form id="addGoodDormInfo" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							评定时间:
+						</label>
+						<span>
+							<span id="agd_dormyear"></span>年 &nbsp;&nbsp;
+							<select id="agd_term">
+								<option>上学期</option>
+								<option>下学期</option>
+							</select>&nbsp;&nbsp;
+							第<input id="agd_time" class="easyui-numberbox" required="true" style="width: 20px">周
+						</span>&nbsp;&nbsp;
+					</div>	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							文明寝室号:
+						</label>
+						<input id="agd_id" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							寝室成员:
+						</label>
+						<input id="agd_member" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							所在班级:
+						</label>
+						<input id="agd_class" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							辅导员:
+						</label>
+						<input id="agd_teacher" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="addGoodDormButtons" class="dialog-button">
+	<a href="javascript:addGoodDorm()" class="easyui-linkbutton c6" 
+		iconCls="icon-ok" style="width:90px;margin-right:200px">添加</a> 
+</div>
+
+
+<script type="text/javascript">
+	$(function() {
+		var date = new Date();
+		var year = date.getFullYear();
+		$("#agd_dormyear").html(year);
+	});
+
+	//发布文明宿舍
+	function addGoodDorm(){
+		var date = new Date();
+		var year = date.getFullYear()+"年";
+		var term = $("#agd_term").val();
+		var week = "第"+$.trim($("#agd_time").val())+"周";
+		var time = year+term+week;
+		var id = $("#agd_id").val();
+		var member = $("#agd_member").val();
+		var aclass = $("#agd_class").val();
+		var teacher = $("#agd_teacher").val();
+		var intro = $("#agd_reason").val();
+		$.post('../json/dormNoticeAction_addDormNotice', {
+			'dormNotices.dorm_id' : id,
+			'dormNotices.notice_time' : time,
+			'dormNotices.dorm_member' : member,
+			'dormNotices.dorm_class' : aclass,
+			'dormNotices.dorm_status' : 0,
+			'dormNotices.teacher' : teacher,
+			'dormNotices.reson' :null
+		}, function(data) {
+			data = parseInt($.trim(data));
+			if (data > 0) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '文明寝室发布成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				//关闭窗口
+				$('#tabs').tabs('close','添加文明寝室');
+				//刷新数据
+				$("#addBadDorm").datagrid('reload');
+				$("#updateDormPublicTable").datagrid('reload');
+			} else {
+				$.messager.alert('错误提示', '通报宿舍发布失败,请重试', 'error');
+			}
+		});
+	}
+</script>

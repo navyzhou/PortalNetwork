@@ -1,0 +1,389 @@
+﻿
+<table id="lostsInfo">
+</table>
+
+<div id="dlostsInfo" class="easyui-dialog" data-options="title:'简介详细查看',inline:true,closed:true" style="width:1000px;height:300px;padding:10px;">
+		<span id="mydlostsInfo"></span>
+</div>
+
+<div id="dfindlost" class="easyui-dialog" data-options="title:'搜索框',inline:true,closed:true" style="width:1000px;height:80px;padding:10px;">
+		<label for="dlost_id">编号:&nbsp;&nbsp;</label>
+		<input class="easyui-numberbox" style="width:100px" type="text" id="dlost_id" name="dlost_id"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dlost_time">时间:&nbsp;&nbsp;</label>
+		<input class="easyui-datebox" style="width:100px" type="text" id="dlost_time" name="dlost_time"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dlost_place">地点:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="dlost_place" name="dlost_place"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dlost_relation">电话:&nbsp;&nbsp;</label>
+		<input class="easyui-numberbox" style="width:120px" type="text" id="dlost_relation" name="dlost_relation"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dlost_status">状态:&nbsp;&nbsp;</label>
+		<select class="easyui-validatebox"  style="width:100px;" id="dlost_status" name="dlost_status">
+			<option value="0">--------</option>
+			<option value="1">未领</option>
+			<option value="2">已领</option>
+			<option value="3">未找到</option>
+			<option value="4">已找到</option>
+			
+	</select>
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="javascript:void(0);" onClick="searchFunc()" class="easyui-linkbutton" iconCls="icon-search">查找</a>
+</div>
+
+<div align="right"><br></div><script type="text/javascript">
+	
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#lostsInfo").edatagrid({
+			url : "../json/lostAction_getLostsInfo",//查询时加载的URL
+			saveUrl:"../json/lostAction_addlostInfo",//添加时加载的URL
+			updateUrl:"../json/lostAction_updateLostInfo",//修改时加载的URL
+			destroyUrl:'../json/lostAction_delLostInfo',//删除时的URL
+			idField : "lost_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-save",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "链接管理",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'link_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'asc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+			{
+				field : 'lost_id',
+				title : '失物编号',
+				width : 50,
+				align:'center'
+			}, {
+				field : 'lost_time',
+				title : '捡到的时间',
+				align:'center',
+				width : 100,
+				editor : {
+					type : 'datebox',
+					options : {
+						required : true,
+						//onSelect: function(date){
+						//	duibi(date);
+						//}
+						validType:'DateCheck'
+					}
+				}
+			} , {
+				field : 'lost_place',
+				title : '捡到的地点',
+				align:'center',
+				width : 100,
+				editor : {
+					type : 'validatebox',
+					options : {
+						required : true,
+					}
+				}
+			} , {
+				field : 'lost_relation',
+				title : '联系方式',
+				align:'center',
+				width : 100,
+				editor : {
+					type : 'numberbox',
+					options : {
+						required : true,
+						validType:'Mobile'
+					}
+				}
+			}, {
+				field : 'lost_status',
+				title : '失物状态',
+				align:'center',
+				width : 100,
+				formatter:function(value,row,index){
+					var e="";
+					if(value==1){
+						e = "未领 ";
+					}else if(value===2){
+						e = "已领 ";	
+					}else if(value===3){
+						e = "未找到 ";
+					}else if(value===4){
+						e = "已找到";
+					}
+					return e;
+				},
+				editor : {
+					type : 'combobox',
+					options : {
+						required : true,
+						 valueField: 'value',
+                   		 textField: 'text',
+                   		 editable:false,
+                   		 data: [
+                   		 	{'value': '1', 'text': '未领' },
+                   		 	{'value': '2', 'text': '已领' },
+                   		 	{'value': '3', 'text': '未找到' },
+                   		 	{'value': '4', 'text': '已找到' }
+                    	]
+					}
+				}
+			}, {
+				field : 'lost_detail',
+				title : '失物详情',
+				align:'center',
+				width : 100,
+				formatter:function(value,row,index){
+					if(value==undefined){
+						return;
+					}else{
+						var e = "<a href=\"javascript:looklostInfo('"+html2Escape(value)+"')\" >查看</a> ";
+						return e;
+					}
+				},
+				editor : {
+					type : 'textarea',
+					options : {
+						required : true
+					}
+				}
+			},{
+				field:'action',title:'操作',width:70,align:'center',
+				formatter:function(value,row,index){
+					if (row.editing){
+						var s = '<a href="#" onclick="saverow('+index+')">保存</a> ';
+						var c = '<a href="#" onclick="cancelrow('+index+')">取消</a>';
+						return s+c;
+					} else {
+						var e = '<a href="#" onclick="editrow('+index+')">编辑</a> ';
+						return e;
+					}
+				}
+			}
+		] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					$('#lostsInfo').edatagrid('addRow',{
+						index:0
+					});
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#lostsInfo').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findlostInfo();
+				}
+			} ],
+			onBeforeEdit:function(index,row){
+				row.editing = true;
+				$('#lostsInfo').datagrid('refreshRow', index);
+			},
+				onAfterEdit:function(index,row){
+				row.editing = false;
+				$('#lostsInfo').datagrid('refreshRow', index);
+			},
+				onCancelEdit:function(index,row){
+				row.editing = false;
+				$('#lostsInfo').datagrid('refreshRow', index);
+			},
+				onSave:function(index,row){
+				$('#lostsInfo').datagrid('reload', {});
+			}
+		});
+	});
+	
+	function cancelrow(index){
+		$('#lostsInfo').datagrid('cancelEdit', index);
+	}
+	
+	function editrow(index){
+		$('#lostsInfo').datagrid('beginEdit', index);
+	}
+	
+	function saverow(index){
+		$('#lostsInfo').datagrid('endEdit', index);
+		$('#lostsInfo').datagrid('reload',{});
+	}
+	
+	
+	//详细查看
+	function looklostInfo(value){
+		$("#dlostsInfo").dialog('open');
+		$("#mydlostsInfo").html(value);
+		
+	}
+	function findlostInfo(){
+		$("#dfindlost").dialog('open');
+	}
+	
+	function backlost(){
+		datagrid = $("#lostsInfo").edatagrid({
+			url : "../json/lostAction_getLostsInfo",//查询时加载的URL
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					$('#lostsInfo').edatagrid('addRow',{
+						index:0
+					});
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#lostsInfo').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findlostInfo();
+				}
+			} ]
+		});
+	}
+	
+	function searchFunc(){
+		$("#dfindlost").dialog('close');
+		var dlost_id=$.trim($("#dlost_id").val());
+		var dlost_time=$.trim($("#dlost_time").datebox("getValue"));
+		var dlost_place=$.trim($("#dlost_place").val());
+		var dlost_relation=$.trim($("#dlost_relation").val());
+		var dlost_status=$.trim($("#dlost_status").val());
+		
+		datagrid = $("#lostsInfo").edatagrid({
+			url : "../json/lostAction_findLostsInfo",//查询时加载的URL
+			queryParams:{"lost_id":dlost_id,"lost_time":dlost_time,"lost_place":dlost_place,
+			"lost_relation":dlost_relation,"lost_status":dlost_status,"page":1,"rows":5},
+			
+			toolbar : [ {
+				text : '返回',
+				iconCls : 'icon-undo',
+				handler : function() {
+					backlost();
+				}
+			}, '-', {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					$('#lostsInfo').edatagrid('addRow',{
+						index:0
+					});
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#lostsInfo').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findlostInfo();
+				}
+			} ]
+		});
+		$("#dlost_id").val("");
+		$("#dlost_place").val("");
+		$("#dlost_relation").val("");
+		/*$.post("../json/lostAction_findLostsInfo",{"lost_id":dlost_id,"lost_time":dlost_time,"lost_place":dlost_place,
+			"lost_relation":dlost_relation,"lost_status":dlost_status,"page":1,"rows":5},function(data){
+			$("#lostsInfo").datagrid("loadData",data);
+			$("#dlost_id").val("");
+			$("#dlost_time").datebox("getValue");
+			$("#dlost_place").val("");
+			$("#dlost_relation").val("");
+			
+		});*/
+	}
+	
+	/*
+	//时间比较
+	function duibi(date) {
+		var myDate = new Date();
+		var a=date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate();
+		var b=myDate.getFullYear()+"-"+(myDate.getMonth()+1)+"-"+myDate.getDate();
+	    var arr = a.split("-");
+	    var starttime = new Date(arr[0], arr[1], arr[2]);
+	    var starttimes = starttime.getTime();
+	
+	    var arrs = b.split("-");
+	    var lktime = new Date(arrs[0], arrs[1], arrs[2]);
+	    var lktimes = lktime.getTime();
+	
+	    if (starttimes >= lktimes) {
+	        alert('设置的时间大于现在的时间，请重新输入');
+	        $('#lostsInfo').edatagrid('cancelRow');
+	        return ;
+	    }else{
+	        return true;
+		}
+	}
+	*/
+	
+	//自定义validType 
+	$.extend($.fn.validatebox.defaults.rules, {  
+    //验证汉字  
+	    CHS: {  
+	        validator: function (value) {  
+	            return /^[\u0391-\uFFE5]+$/.test(value);  
+	        },  
+	        message: 'The input Chinese characters only.'  
+	    },  
+	    //移动手机号码验证  
+	    Mobile: {//value值为文本框中的值  
+	        validator: function (value) {  
+	            var reg = /^1[3|4|5|8|9]\d{9}$/;  
+	            return reg.test(value);  
+	        },  
+	        message: '请输入正确的电话号码'  
+	    },  
+	    //国内邮编验证  
+	    ZipCode: {  
+	        validator: function (value) {  
+	            var reg = /^[0-9]\d{5}$/;  
+	            return reg.test(value);  
+	        },  
+	        message: 'The zip code must be 6 digits and 0 began.'  
+	    },  
+	  //数字  
+	    Number: {  
+	        validator: function (value) {  
+	            var reg =/^[0-9]*$/;  
+	            return reg.test(value);  
+	        },  
+	        message: 'Please input number.'  
+	    },  
+	    //时间比较
+	    DateCheck:{
+	    	validator: function (date) {  
+	    	
+	          	var myDate = new Date();
+				var b=myDate.getFullYear()+"-"+(myDate.getMonth()+1)+"-"+myDate.getDate();
+			    var arr = date.split("-");
+			    var starttime = new Date(arr[0], arr[1], arr[2]);
+			    var starttimes = starttime.getTime();
+			
+			    var arrs = b.split("-");
+			    var lktime = new Date(arrs[0], arrs[1], arrs[2]);
+			    var lktimes = lktime.getTime();
+			    
+			    return starttimes<=lktimes;
+	        },  
+	        message: '设置的时间大于现在的时间，请检查.'  
+	    }
+	})  ;
+	
+</script>

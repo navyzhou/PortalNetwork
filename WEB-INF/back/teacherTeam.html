@@ -1,0 +1,114 @@
+﻿<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.teacherTeamTitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+
+<div id="teacherTeamDialog" style="width:1000px;height:600px;padding:10px 20px" closed="true" buttons="#dlg-buttons">
+	<div class="teacherTeamTitle">师资队伍</div>
+	<form id="teacherTeamForm" method="post" enctype="multipart/form-data">
+		<table style="width:1000px;">
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:600px;resize:none"  id="tetr_article" name="tr_article"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:updateTeacherTeam()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">发布</a> 
+</div>
+
+<script>
+	CKEDITOR.replace( 'tetr_article', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+	CKEDITOR.editorConfig = function( config ){
+	    // Define changes to default configuration here. For example:
+	    config.language = 'zh-cn';
+	    config.uiColor = '#AADC6E';
+	    config.resize_enabled = false;
+	};
+
+</script>
+
+
+<script type="text/javascript">
+	$(function(){
+		var id = 1003;
+		$.post('../json/trendsAction_getTrendsById',{'trends.tr_id':id},function(data){
+			var article = data.jsonObject[0].tr_article;
+			
+			CKEDITOR.instances.tetr_article.setData( article );
+		},'json');
+	});
+	
+	function updateTeacherTeam(){
+		var article = CKEDITOR.instances.tetr_article.getData();
+		
+		if($.trim(delTag(article))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		$.post('../json/trendsAction_updateTrends',{
+			'trends.tr_id':1003,
+			'trends.tr_article':article,
+			'trends.tr_pic':null,
+			'trends.tr_video':null,
+			'trends.tr_file':null,
+			'trends.tr_time':'2015/01/01',
+			'trends.temp2':'公开'
+			},function(data){
+			data = parseInt($.trim(data));
+			if(data>=1){
+				$.messager.show({
+					title:'成功提示',
+					msg:'发布成功！',
+					timeout:2000,
+					showType:'slide'
+				});
+				//关闭选项卡
+				$('#tabs').tabs('close','师资队伍'); 
+			}else{
+				$.messager.alert('错误提示','修改失败,请重试','error');
+			}
+		});
+	};
+</script>

@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>失物招领  --湖南工学院计算机与信息科学学院</title>
+<link rel="shortcut icon" href="images/bitbug.ico" type="image/x-icon" />
+<link href="css/bootstrap.css" rel="stylesheet">
+<link href="css/non-responsive.min.css" rel="stylesheet">
+<link href="css/css/basic.css" rel="stylesheet">
+<link href="css/bootstrap-datetimepicker.css" rel="stylesheet">
+<link href="css/css/losts.css" rel="stylesheet">
+
+</head>
+
+<body>
+<div  class="container"> 
+  <!--头部开始-->
+  <header>
+    <div class="row">
+      <div class="col-xs-12"> <a href="#" title="回到首页"> <img id="logo" src="images/head1.png" width="100%" alt="..."> </a>
+        <div class="row">
+          <div class="col-xs-6"> </div>
+          <div class="col-xs-6" style="margin-top:-50px;">
+            <form class="navbar-form navbar-right">
+               <input type="text" placeholder="搜索" class="form-control" id="mysearchInfo">
+              <a type="button" class="btn btn-default" href="jixin_find.html" id="mysearch">搜索</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--通知条--> 
+    
+    <!--通知条结束--> 
+  </header>
+  <!--头部结束--> 
+  <!--导航开始-->
+  <nav class="navbar">
+    <ul class="nav navbar-nav">
+      <li class="dropdown"> <a href="index.html" class="dropdown-toggle" class="active">首页动态<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <!--  <li><a href="jixin_news.html?tyid=10001">滚动新闻</a></li>-->
+          <li><a href="jixin_news.html?tyid=10002">计信新闻</a></li>
+          <li><a href="jixin_news.html?tyid=10003">通知公告</a></li>
+          <li><a href="jixin_files.html">最新文件</a></li>
+        </ul>
+      </li>
+      <li class="dropdown"> <a href="academy.html" class="dropdown-toggle" >走进计信<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="academy.html#work1">学院介绍</a></li>
+          <li><a href="academy.html#work2">机构设置</a></li>
+          <li><a href="academy.html#work3">领导风采</a></li>
+          <li><a href="academy.html#work4">师资队伍</a></li>
+        </ul>
+      </li>
+      <li class="dropdown"> <a href="party.html" class="dropdown-toggle" >党群建设<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="jixin_news.html?tyid=10005">通知公告</a></li>
+          <li><a href="jixin_news.html?tyid=10026">党总支概括</a></li>
+          <li><a href="jixin_news.html?tyid=10006">党员风采</a></li>
+          <li><a href="jixin_news.html?tyid=10007">党员活动</a></li>
+          <li><a href="jixin_news.html?tyid=10008">党支工会</a></li>
+          <li><a href="jixin_news.html?tyid=10009">理论制度</a></li>
+        </ul>
+      </li>
+      <li class="dropdown"> <a href="subject.html" class="dropdown-toggle">学科建设<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="jixin_news.html?tyid=10010">专业介绍</a></li>
+          <li><a href="jixin_news.html?tyid=10011">科研成果</a></li>
+        </ul>
+      </li>
+      <li class="dropdown"> <a href="mass.html" class="dropdown-toggle" >团学工作<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="jixin_news.html?tyid=10012">班级风采</a></li>
+          <li><a href="jixin_news.html?tyid=10013">社团活动</a></li>
+          <li><a href="jixin_news.html?tyid=10014">学团动态</a></li>
+        </ul>
+      </li>
+      <li><a href="dormitory.html">宿舍管理</a></li>
+      <!-- <li class="dropdown"> <a href="dormitory.html" class="dropdown-toggle">宿舍管理<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="jixin_dorm.html">宿舍通报</a></li>
+          <li><a href="#">奖励惩罚</a></li>
+          <li><a href="#">宿舍信息</a></li>
+        </ul>
+      </li> -->
+      <li><a href="awardNotice.html">奖评资助</a></li>
+      <li><a class="dropdown-toggle" href="studentstyle.html">学生园地<b class="caret"></b></a>
+      	<ul class="dropdown-menu">
+          <li><a href="jixin_news.html?tyid=10016">学子风采</a></li>
+          <li><a href="jixin_news.html?tyid=10017">爱心基地</a></li>
+          <li><a href="jixin_news.html?tyid=10018">新生指南</a></li>
+          <li><a href="jixin_news.html?tyid=10019">学生指南</a></li>
+        </ul>
+      </li>
+      <li class="dropdown"> <a href="job.html" class="dropdown-toggle">招生就业<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href="jixin_jobs.html">招贤纳士</a></li>
+          <li><a href="jixin_news.html?tyid=10021">生涯规划</a></li>
+          <li><a href="jixin_news.html?tyid=10022">就业指导</a></li>
+          <li><a href="jixin_news.html?tyid=10023">办事指南</a></li>
+          <li><a href="jixin_news.html?tyid=10024">就业政策</a></li>
+          <li><a href="jixin_news.html?tyid=10025">就业明星</a></li>
+        </ul>
+      </li>
+       <li> <a href="contact_us.html">联系我们</a></li>
+    </ul>
+  </nav>
+  
+  <!--导航结束--> 
+  
+  <div id="main-content">
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="panel panel-default" id="mmmm">
+          <div class="panel-heading">失物招领</div>
+          <div class="panel-body" id="mylostbody">
+            <div class="col-xs-6" id="one_jobInfo">
+            	<p class="mypspan"><span>招领信息</span> <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-info mybutton" role="button">添加招领信息</a></p>
+              <div id="leftLost">
+	          
+               </div>
+              <p id="page1"></p>
+             
+            </div>
+            <div class="col-xs-6" id="two_jobInfo">
+            <p class="mypspan"><span>丢失信息</span> <a href="#" data-toggle="modal" data-target="#myModal2" class="btn btn-info mybutton" role="button">添加丢失领信息</a></p>
+              <div id="rightLost">
+	          
+               </div>
+              <p id="page2"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">添加招领信息</h4>
+      </div>
+      <div class="modal-body">
+      	<form role="form" class="myform" action="javascript:submitForm()" >           
+          <div class="form-group">
+            <label for="lost_place">捡到的地点</label>
+            <input type="text" class="form-control" name="lost_place" id="lost_place" placeholder="请输入捡到的地点">
+          </div> 
+          <div class="form-group">
+            <label for="lost_time">捡到的时间</label>
+               <input type='text' class="form-control" name="lost_time" id='lost_time' placeholder="请输入捡到的时间"/>
+          </div> 
+          <div class="form-group">
+            <label for="isPhone">联系方式</label>
+            <input type="text" class="form-control" name="isPhone" id="isPhone" placeholder="请输入联系方式">
+          </div> 
+          <!--  
+          <div class="form-group">
+            <label for="lost_email">邮箱</label>
+            <input type="email" class="form-control" name="lost_email" id="lost_email" placeholder="请输入邮箱">
+            <span class="help-block">邮箱用于获取验证码.</span><br/>
+             <a type="button" id="mycode" class="btn btn-primary disabled" href="javascript:sendCode()">发送验证码</a>
+             <span id="helpcode"></span>
+               <a id="newcode" type="button" class="btn btn-primary" href="javascript:sendCode3()" style="display:none">重新发送</a>
+          </div> 
+          <div class="form-group">
+            <label for="lost_pwd">验证码</label>
+            <input type="text" class="form-control" name="lost_pwd" id="lost_pwd" placeholder="请输入验证码">
+            <span id="checkcodes" ></span>
+          </div> -->
+          <div class="form-group">
+            <label for="lost_detail">详细信息</label>
+            <textarea class="form-control" rows="3" name="lost_detail" id="lost_detail" placeholder="详细信息(最多输入100个字)"></textarea>
+          </div>  
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary" id="submitForm" >发布</button>
+          </div>       
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<div class="modal fade" id="myModal2">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title">添加丢失物品信息</h4>
+      </div>
+      <div class="modal-body">
+      	<form role="form" class="myform2" action="javascript:submitForm2()">           
+          <div class="form-group">
+            <label for="lost_place2">丢失的地点</label>
+            <input type="text" class="form-control" name="lost_place2" id="lost_place2" placeholder="请输入捡到的地点">
+          </div> 
+          <div class="form-group">
+            <label for="lost_time2">丢失的时间</label>
+               <input type='text' class="form-control" name='lost_time2'  id='lost_time2' placeholder="请输入捡到的时间"/>
+          </div> 
+          <div class="form-group">
+            <label for="isPhone2">联系方式</label>
+            <input type="text" class="form-control" name="isPhone2" id="isPhone2" placeholder="请输入联系方式">
+          </div>
+          <!--  
+          <div class="form-group">
+            <label for="lost_email2">邮箱</label>
+            <input type="email" class="form-control" name="lost_email2" id="lost_email2" placeholder="请输入邮箱">
+            <span class="help-block">邮箱用于获取验证码.</span><br/>
+             <a type="button" id="mycode2" class="btn btn-primary disabled" href="javascript:sendCode2()">发送验证码</a>
+             <span id="helpcode2"></span>
+             <a id="newcode2" type="button" class="btn btn-primary" href="javascript:sendCode4()" style="display:none">重新发送</a>
+             <a type="button" class="btn btn-primary" href="#">登录邮箱</a>
+          </div> 
+          <div class="form-group">
+            <label for="lost_pwd2">验证码</label>
+            <input type="text" class="form-control" name="lost_pwd2" id="lost_pwd2" placeholder="请输入验证码">
+             <span id="checkcode2" ></span>
+          </div> --> 
+          <div class="form-group">
+            <label for="lost_detail2">详细信息</label>
+            <textarea  class="form-control" rows="3" name="lost_detail2" id="lost_detail2" placeholder="详细信息(最多输入100个字)"></textarea>
+          </div>  
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="submit" class="btn btn-primary" id="submitForm2" >发布</button>
+          </div>       
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<div id="progressBar" class="progressBar">
+	<div class="progressBarDiv">
+		<img src="images/loading.gif" style="width:50px;height:50px" >数据加载中，请稍等...
+	</div>
+</div>
+<!--导航结束-->
+<footer id="footer">
+  <div class="container" id="footerborder">
+    <p>CopyRight @ 2015-2016 湖南工学院计算机与信息科学学院</p>
+    <p>ICP备案号:湘ICP备11007652号</p>
+    <p style="text-align:center;height:20px;line-height:20px;margin:5px 0px;">
+		技术支持&<a target='blank' href="http://www.hyycinfo.com/ ">衡阳源辰信息</a>
+		<span style="display:inline-block"><img class="footlogo" src="images/yc2.png">0734-8355998</span>
+	</p>
+    
+  </div>
+</footer>
+<script src="js/jquery-1.9.1.js"></script> 
+<script src="js/bootstrap.js"></script> 
+<script src="testjs/jquery.bootpag.js"></script>
+<script src="js/browser.js"></script>  
+<script src="js/moment.js"></script>
+<script src="js/moment-with-locales.js"></script>
+<script src="js/bootstrap-datetimepicker.js"></script>
+<script src="js/jquery.validate.js" type="text/javascript"></script>  
+<script src="js/base.js"></script>  
+<script src="js/losts.js"></script> 
+<script>
+MyValidator.init();
+</script>
+</body>
+</html>

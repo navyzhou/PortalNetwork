@@ -1,0 +1,484 @@
+﻿<table id="leadersInfo">
+</table>
+
+<div id="dleader" class="easyui-dialog" data-options="title:'简介详细查看',inline:true,closed:true" style="width:1000px;height:300px;padding:10px;">
+		<span id="mydleader"></span>
+</div>
+
+<div id="dleadersInfo" class="easyui-dialog" data-options="title:'搜索框',inline:true,closed:true" style="width:500px;height:80px;padding:10px;">
+		<label for="dlea_post">职位:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:100px" type="text" id="dlea_post" name="dlea_post"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dlea_name">姓名:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="dlea_name" name="dlea_name"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="javascript:void(0);" onClick="searchDleadersInfo()" class="easyui-linkbutton" iconCls="icon-search">查找</a>
+</div>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+<div align="right">
+	<br>
+</div>
+<div id="addLeaderInfo" class="easyui-dialog" title="添加领导信息"
+	style="width: 600px; height: 500px; text-align: center"
+	data-options="iconCls:'icon-add',resizable:true,modal:true,closed:true">
+	<br />
+	职务:
+	<input type="text" id="lea_post" required="required" />
+	<br />
+	<br />
+	姓名:
+	<input type="text" id="lea_name" required="required"/>
+	<br />
+	<br />
+	图片:
+	<input type="file" id="les_photo" name="les_photo"
+		accept="image/gif,image/jpeg,image/png"
+		onchange="previewImage(this,'preview1','show_img')" />
+	<div id="preview1" style="display: none">
+		<img src="" width="100px" height="100px" id="show_img" />
+	</div>
+	<br />
+	<br />
+	介绍:
+	<br />
+	<textarea rows="4" cols="40" id="lea_intro"  required="required"/></textarea>
+	<br />
+	<br />
+
+	<input type="button" value="添加" onclick="uploadInfo()" />
+</div>
+
+<div id="updateLeaderInfo" class="easyui-dialog" title="修改领导信息"
+	style="width: 600px; height: 500px; text-align: center"
+	data-options="iconCls:'icon-add',resizable:true,modal:true,closed:true">
+	<br />
+	职务:
+	<input type="text" id="lpid" style="display: none"/>
+	<input type="text" id="lpost" />
+	<br />
+	<br />
+	姓名:
+	<input type="text" id="lname" />
+	<br />
+	<br />
+	图片:
+	<input type="file" id="lphoto" name="lphoto"
+		accept="image/gif,image/jpeg,image/png"
+		onchange="previewImage(this,'preview2','show_img2')"/>
+	<div id="preview2" style="display: none">
+		<img src="" width="100px" height="100px" id="show_img2" />
+		<span id="mysrc" style="display:none"></span>
+	</div>
+	<br />
+	<br />
+	介绍:
+	<br />
+	<textarea rows="4" cols="40" id="lintro" /></textarea>
+	<br />
+	<br />
+
+	<input type="button" value="修改" onclick="updateloadInfo()" />
+</div>
+
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#leadersInfo").edatagrid({
+			url : "../json/leadersAction_getLeadersInfo",//查询时加载的URL
+			destroyUrl:'../json/leadersAction_delLeadersInfo',//删除时的URL
+			idField : "lea_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-save",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "领导信息管理",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'lea_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'dec',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+			{
+				field : 'lea_id',
+				title : '编号',
+				width : 50,
+				align:'center'
+			}, {
+				field : 'les_photos',
+				title : '照片',
+				align:'center',
+				width : 100
+			}, {
+				field : 'lea_post',
+				title : '职务',
+				align:'center',
+				width : 100
+			}, {
+				field : 'lea_name',
+				title : '姓名',
+				align:'center',
+				width : 100
+			}, {
+				field : 'lea_intro',
+				title : '简介',
+				align:'center',
+				width : 100,
+				formatter:function(value,row,index){
+					var e = "<a href=\"javascript:lookleaderInfo('"+value+"')\" >查看</a> ";
+					return e;
+				}
+			}] ],
+			toolbar : [  {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					addProduct() ;
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#leadersInfo').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					updataLeaderInfo();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findleadersInfo();
+				}
+			}]
+		});
+	});
+	
+	//打开查找框
+	function findleadersInfo(){
+		$("#dleadersInfo").dialog('open');
+	}
+
+	//查找
+	function searchDleadersInfo(){
+		$("#dleadersInfo").dialog('close');
+		var dlea_post=$.trim($("#dlea_post").val());
+		var dlea_name=$.trim($("#dlea_name").val());
+		datagrid = $("#leadersInfo").edatagrid({
+			url : "../json/leadersAction_getLeadersByMap",//查询时加载的URL
+			queryParams:{"leader.lea_post":dlea_post,"leader.lea_name":dlea_name,"page":1,"rows":5},
+			
+			toolbar : [ {
+				text : '返回',
+				iconCls : 'icon-undo',
+				handler : function() {
+					backleadersInfo();
+				}
+			}, '-', {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					addProduct() ;
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#leadersInfo').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					updataLeaderInfo();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findleadersInfo();
+				}
+			}]
+		});
+		
+	}
+
+	function backleadersInfo(){
+		datagrid = $("#leadersInfo").edatagrid({
+			url : "../json/leadersAction_getLeadersInfo",//查询时加载的URL
+			toolbar : [  {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					addProduct() ;
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#leadersInfo').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					updataLeaderInfo();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findleadersInfo();
+				}
+			}]
+		});
+	}
+	
+	function lookleaderInfo(value){
+		$("#dleader").dialog('open');
+		$("#mydleader").html(value);
+	}
+	//点击添加图标按钮时
+	function addProduct() {
+		$("#lea_post").val("");
+		$("#lea_name").val("");
+		$("#lea_intro").val("");
+		$("#les_photo").val("");
+		$("#preview1").css("display","none");
+		$("#addLeaderInfo").dialog("open");
+	}
+	
+	function uploadInfo(){
+		var lea_post=html2Escape($("#lea_post").val());
+		var lea_name=html2Escape($("#lea_name").val());
+		var lea_intro=html2Escape($("#lea_intro").val());
+		var les_photo=$("#les_photo").val();
+		if(lea_post=="" || lea_post==null){
+			$.messager.alert('错误提示','职位不能为空','error');
+			return;
+		}
+		if(lea_name=="" || lea_name==null){
+			$.messager.alert('错误提示','名字不能为空','error');
+			return;
+		}
+		if(lea_intro=="" || lea_intro==null){
+			$.messager.alert('错误提示','介绍不能为空','error');
+			return;
+		}
+		if(lea_intro.length>2000){
+			$.messager.alert('错误提示','介绍字数过多','error');
+			return;
+		}
+		if(les_photo=="" || les_photo==null){
+			$.messager.alert('错误提示','图片不能为空','error');
+			return;
+		}
+		
+		$.ajaxFileUpload({
+			url:'../json/leadersAction_uploadPic',
+			secureuri:false,
+			fileElementId:['les_photo'],
+			dataType:'json',
+			success:function(data,status){
+			if(parseInt(data)==1){
+				$.messager.show({
+					title : '成功提示',
+					msg : '图片添加成功',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				
+				$.post("../json/leadersAction_addLeaderInfo",{'leader.lea_post':lea_post,'leader.lea_name':lea_name,'leader.lea_intro':lea_intro,'leader.les_photo':les_photo},function(data){
+					data=parseInt($.trim(data));
+					if(data>=1){
+					$.messager.show( {
+						title : '成功提示',
+						msg : '数据添加成功',
+						timeout : 2000,
+						showType : 'slide'
+					});
+				
+				//关闭弹出框
+				$("#addLeaderInfo").dialog("close");
+				//刷新数据
+				$("#leadersInfo").datagrid('load', {});
+			}else{
+				$.messager.show( {
+					title : '失败提示',
+					msg : '数据添加失败',
+					timeout : 2000,
+					showType : 'slide'
+				});
+			}
+		},"json");
+		
+			}else{
+				$.messager.alert("失败提示","图片上传失败","error");
+			}
+		},
+			error:function(data,status,e){
+				$.messager.alert("失败提示","图片上传失败","error");
+			}
+		});
+				
+	
+		
+	}
+	//往数据库添加信息
+	function addLeaderInfo(){
+		
+	}
+	//当点击更新图标时
+	function updataLeaderInfo(){
+		var rows=$("#leadersInfo").datagrid('getSelections');
+		if(rows.length<=0){
+			$.messager.show({
+				title:'错误提示',
+				msg:'请选择您要修改的信息',
+				timeout:2000,
+				showType:'slide'
+			});
+			return ;
+		}
+		var lpid=rows[0].lea_id;
+		var lpost=rows[0].lea_post;
+		var lname=rows[0].lea_name;
+		var lintro= rows[0].lea_intro;
+		var lphoto=rows[0].les_photo;
+		$("#lpid").val(lpid);
+		$("#lpost").val(htmlEscape(lpost));
+		$("#lname").val(htmlEscape(lname));
+		$("#lintro").val(htmlEscape(lintro));
+		$("#preview2").show();
+		$("#mysrc").html(lphoto);
+		$("#show_img2").attr({src:"../"+lphoto});
+		var file = $("#lphoto");
+		file.after(file.clone().val(""));
+		file.remove();
+		$("#updateLeaderInfo").dialog("open");
+	}
+	
+	//修改信息
+	function updateloadInfo(){
+		var lphoto=$("#lphoto").val();//判断图片是否修改
+		if(lphoto=='' ){
+			updateLeaderInfo();
+		}else{
+			progress();//显示进度条
+			$.ajaxFileUpload({
+				url:'../json/leadersAction_updateloadPic',
+				secureuri:false,
+				fileElementId:['lphoto'],
+				dataType:'json',
+				success:function(data,status){
+					$.messager.progress('close');//关闭进度条
+					if(parseInt(data)==1){
+						$.messager.show({
+							title : '成功提示',
+							msg : '图片修改成功',
+							timeout : 2000,
+							showType : 'slide'
+						});
+						updateLeaderInfo();//添加商品信息
+					}else{
+						$.messager.alert("失败提示","图片修改失败","error");
+					}
+				},
+				error:function(data,status,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert("失败提示","图片修改失败","error");
+				}
+			});
+		}
+	}
+	//往数据库修改信息
+	function updateLeaderInfo(){
+		var lea_id=$("#lpid").val();
+		var lea_post=html2Escape($("#lpost").val());
+		var lea_name=html2Escape($("#lname").val());
+		var lea_intro=html2Escape($("#lintro").val());
+		var les_photo=$("#lphoto").val();
+		//判断图片是否修改
+		if(les_photo==''){//图片没有修改
+		
+			$.post("../json/leadersAction_updateLeaderInfo",{'leader.lea_id':lea_id,'leader.lea_post':lea_post,'leader.lea_name':lea_name,'leader.lea_intro':lea_intro},function(data){
+				data=parseInt($.trim(data));
+				if(data>=1){
+					$.messager.show( {
+						title : '成功提示',
+						msg : '数据添加成功',
+						timeout : 2000,
+						showType : 'slide'
+					});
+					//关闭弹出框
+					$("#updateLeaderInfo").dialog("close");
+					//刷新数据
+					$("#leadersInfo").datagrid('load', {});
+				}else{
+					$.messager.show( {
+						title : '失败提示',
+						msg : '数据添加失败',
+						timeout : 2000,
+						showType : 'slide'
+					});
+				}
+			},"json");
+		}else{//图片修改过
+			$.post("../json/leadersAction_updateLeaderInfo",{'leader.lea_id':lea_id,'leader.lea_post':lea_post,'leader.lea_name':lea_name,'leader.lea_intro':lea_intro,'leader.les_photo':"../dataInfo/leader/"+les_photo},function(data){
+				data=parseInt($.trim(data));
+				if(data>=1){
+					$.messager.show( {
+						title : '成功提示',
+						msg : '数据添加成功',
+						timeout : 2000,
+						showType : 'slide'
+					});
+					//关闭弹出框
+					$("#updateLeaderInfo").dialog("close");
+					//刷新数据
+					$("#leadersInfo").datagrid('load', {});
+				}else{
+					$.messager.show( {
+						title : '失败提示',
+						msg : '数据添加失败',
+						timeout : 2000,
+						showType : 'slide'
+					});
+				}
+			},"json");
+		}
+	}
+	
+</script>

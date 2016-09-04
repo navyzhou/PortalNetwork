@@ -1,0 +1,132 @@
+
+#topinfo{
+	height:300px;
+	width:100%;
+}
+.myheight1{
+	height:495px;
+}
+.myheight2{
+	height:320px;
+}
+.myheight3{
+	height:330px;
+}
+#myshiwu{
+	height:205px;
+}
+<!--图片轮换-->
+.carousel-control.left {
+	height:100%;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%);
+    background-repeat: repeat-x;
+}
+.carousel-control.right {
+	height:100%;
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 100%);
+    background-repeat: repeat-x;
+    left: auto;
+    right: 0;
+}
+
+.img-responsive, .thumbnail > img, .thumbnail a > img, .carousel-inner > .item > img, .carousel-inner > .item > a > img {
+    display: block;
+    height: 300px;
+	width:auto;
+}
+
+#mygundong{
+	height:300px;
+}
+
+<!--图片轮换结束-->
+
+<!--主体-->
+
+
+#miantop{
+	height:550px;
+}
+
+.media {
+    margin-top: 17px;
+}
+
+
+.media img{
+	width:60px;
+	height:60px;
+}
+
+.media .media-heading {
+    margin-bottom: 5px;
+}
+.media-heading a{
+	font-size:16px;
+}
+
+.miantopbottom{
+	height:340px;
+}
+
+#imginfo{
+	margin:0px 0px 15px 0px;
+	height:100px;
+}
+#main-content{
+	margin-top:20px;
+}
+
+
+.mytime{
+	float:right;
+}
+
+
+
+#mymedia {
+	width:256px;
+	height:220px;
+	overflow:hidden;
+}
+#starStudetnt img{
+	margin-top:6px;
+	margin-bottom:8px;
+	width:135px;
+	height:140px;
+}
+
+
+.panel-footer a {
+    display: block;
+    text-align: right;
+    text-decoration: none;
+    width: 100%;
+}
+
+
+#bottom .list-group-item {
+    background-color: #fff;
+	border: 0px solid #ddd;
+    display: block;
+    margin-bottom: -1px;
+    padding: 10px 15px;
+    position: relative;
+	text-align:center;
+}
+
+#bottom a{
+	color:#000;
+}
+
+#bottom h3{
+	text-align:center;
+}
+
+#footer p{
+	text-align:center
+}
+
+.mystyle{
+	color:#F00;
+}

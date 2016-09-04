@@ -1,0 +1,169 @@
+﻿<table id="jobInfoTable"></table>
+
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+
+<div id="jobInfoDialog"
+	style="width: 800px; height: 600px; padding: 10px 20px" closed="true"
+	buttons="#dlg-buttons">
+	<div class="ftitle">
+		发布招聘信息
+	</div>
+	<form id="jobInfoform" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							招聘单位:
+						</label>
+						<input id="job_com" class="easyui-textbox" required="true">
+						<input type="hidden" id="jid" />
+						<!-- 存类型id的隐藏域 -->
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="picDiv" style="inline">
+						<!--<input type="hidden" id="htr_pic"/> 存图片路径的隐藏域 -->
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							职位及人数:
+						</label>
+						<input id="job_post" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							工作地点:
+						</label>
+						<input id="job_place" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width: 800px; height: 400px; resize: none"
+							id="job_intro" name="job_intro"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:addJobInfo()" class="easyui-linkbutton c6"
+		iconCls="icon-ok" style="width: 90px; margin-right: 200px">发布</a>
+</div>
+
+<script>
+	CKEDITOR.replace('job_intro', {
+		on : {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded : function(evt) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if (!ed.getCommand('bold'))
+					doc.getById('exec-bold').hide();
+				if (!ed.getCommand('link'))
+					doc.getById('exec-link').hide();
+			}
+		}
+	});
+	CKEDITOR.editorConfig = function(config) {
+		// Define changes to default configuration here. For example:
+		config.language = 'zh-cn';
+		config.uiColor = '#AADC6E';
+		config.resize_enabled = false;
+	};
+</script>
+
+
+<script type="text/javascript">
+	
+	//发布招聘信息
+	function addJobInfo() {
+		var com = html2Escape($("#job_com").val());
+		var post =html2Escape( $("#job_post").val());
+		var place = html2Escape($("#job_place").val());
+		var intro = CKEDITOR.instances.job_intro.getData();
+
+		if($.trim(com)==''){
+			$.messager.alert('错误提示','招聘单位不能为空','error');
+			return;
+		}
+		
+		if($.trim(post)==''){
+			$.messager.alert('错误提示','职位及人数不能为空','error');
+			return;
+		}
+		
+		if($.trim(place)==''){
+			$.messager.alert('错误提示','工作地点不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(intro))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		$.post('../json/jobInfoAction_addJobInfo', {
+			'jobInfo.job_com' : com,
+			'jobInfo.job_post' : post,
+			'jobInfo.job_place' : place,
+			'jobInfo.job_intro' : intro
+		}, function(data) {
+			data = parseInt($.trim(data));
+			if (data >= 1) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '招聘信息发布成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				//关闭选项卡
+				$('#tabs').tabs('close', '发布招聘信息');
+
+				//刷新数据
+				$("#jobInfo").datagrid('load', {});
+			} else {
+				$.messager.alert('错误提示', '招聘信息发布失败,请重试', 'error');
+			}
+		});
+	}
+</script>

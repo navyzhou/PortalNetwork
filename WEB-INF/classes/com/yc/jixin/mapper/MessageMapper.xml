@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据编号或留言名或留言地址查询 -->
+	<select id="getAllMessages" parameterType="Messages" resultType="Messages">
+		select mes_id,mes_pub,mes_ip,mes_content,mes_time from message
+		<where>
+			<if test="mes_id!=null">
+				mes_id=#{mes_id}
+			</if>
+			<if test="mes_pub!=null">
+				mes_pub=#{mes_pub}
+			</if>
+			<if test="mes_ip!=null">
+				mes_ip=#{mes_ip}
+			</if>
+			<if test="mes_content!=null">
+				mes_content=#{mes_content}
+			</if>
+			<if test="mes_time!=null">
+				mes_time=to_date(#{mes_time},'yyyy-mm-dd HH24:MI:SS')
+			</if>
+		</where>
+	</select>
+
+	<!-- 分页查询 -->
+	<select id="getByPageMessages" parameterType="PageParams" resultType="Messages">
+		<choose>
+			<when test="pageNo!=null and pageNum!=null">
+				select mes_id,mes_pub,mes_ip,mes_content,mes_time from (
+					select mes_id,mes_pub,mes_ip,mes_content,mes_time,rn from (
+						select l.mes_id,l.mes_pub,l.mes_ip,l.mes_content,l.mes_time, rownum rn from message l order by l.mes_id desc)
+							where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select mes_id,mes_pub,mes_ip,mes_content,mes_time from message
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--添加留言  -->
+	<insert id="addMessages" parameterType="Messages">
+		insert into message values(seq_mes_id.nextval,#{mes_pub},#{mes_ip},#{mes_content},sysdate,null,null)
+	</insert>
+	
+	<!-- 修改留言 -->
+	<update id="updateMessages" parameterType="Messages">
+		update message
+		<set>
+			<if test="mes_pub!=null">
+				mes_pub=#{mes_pub},
+			</if>
+			<if test="mes_ip!=null">
+				mes_ip=#{mes_ip},
+			</if>
+			<if test="mes_content!=null">
+				mes_content=#{mes_content},
+			</if>
+			<if test="mes_time!=null">
+				mes_time=to_date(#{mes_time},'yyyy-mm-dd HH24:MI:SS')
+			</if>
+		</set>
+		where mes_id=#{mes_id}
+	</update>
+	
+	<!-- 多条删除留言 -->
+	<delete id="delMessages" parameterType="int">
+		delete from message where mes_id=#{_parameter}
+	</delete>
+	
+	<!-- 查询留言总数 -->
+	<select id="getMessagesTotal" resultType="int">
+		select count(*) from message
+	</select>
+	
+	
+	<select id="findMesByMap" parameterType="Map" resultType="Messages">
+	select  mes_id,mes_pub,mes_ip,mes_content,mes_time from(
+		select mes_id,mes_pub,mes_ip,mes_content,mes_time, rownum rn from message
+		<where>
+		     <if test="_parameter.containsKey('mes_pub')">  
+        		and mes_pub like CONCAT(CONCAT('%',#{mes_pub} ),'%')
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('mes_ip')">  
+        		and mes_ip like CONCAT(CONCAT('%',#{mes_ip} ),'%')  
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('mes_time')">  
+        		AND mes_time like to_date(#{mes_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		 
+    		<if test="_parameter.containsKey('max')">  
+        		AND	rownum &lt;=#{max} order by mes_id desc) 
+    		</if>
+    		
+		</where>
+		<if test="_parameter.containsKey('min')">  
+        		where rn>#{min} 
+    	</if>
+	</select>
+	
+	<select id="findMesByMapCount" parameterType="Map" resultType="int">
+	
+		select count(*) from message
+		<where>
+		     <if test="_parameter.containsKey('mes_pub')">  
+        		and mes_pub like CONCAT(CONCAT('%',#{mes_pub} ),'%')
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('mes_ip')">  
+        		and mes_ip like CONCAT(CONCAT('%',#{mes_ip} ),'%')  
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('mes_time')">  
+        		AND mes_time like to_date(#{mes_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		
+		</where>
+		
+	</select>
+</mapper>

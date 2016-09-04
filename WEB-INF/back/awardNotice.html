@@ -1,0 +1,588 @@
+﻿<table id="awardNotice"> </table>
+
+<div id="dawardNotice" class="easyui-dialog" data-options="title:'搜索框',inline:true,closed:true" style="width:1000px;height:80px;padding:10px;">
+		<label for="dantr_title">标题关键字:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:100px" type="text" id="dantr_title" name="dantr_title"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dantr_time">时间:&nbsp;&nbsp;</label>
+		<input class="easyui-datebox" style="width:100px" type="text" id="dantr_time" name="dantr_time"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dantr_author">作者:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="dantr_author" name="dantr_author"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="dantr_from">来源:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="dantr_from" name="dantr_from"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="javascript:void(0);" onClick="searchFan()" class="easyui-linkbutton" iconCls="icon-search">查找</a>
+</div>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+.littlebutton{
+	color:blue;
+	margin-left:5px;
+}
+
+.hidden {
+	opacity: 0;
+	position: absolute;
+	z-index: 10;
+	width:25px;
+	margin-left:-190px;
+	margin-top:-5px;
+}
+.showPic{
+	opacity:0;
+	z-index: 20;
+	margin-left: 300px;
+	margin-top: -50px;
+	position: absolute;
+}
+</style>
+
+
+<div id="awardNoticeUpdateDialog" class="easyui-dialog" style="width:1000px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#dlg-buttons">
+	<form id="awardNoticeform" method="post" enctype="multipart/form-data">
+		<table style="width:900px;">
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>标题:</label> <input id="an_title" class="easyui-textbox" required="true">
+						<input type="hidden" id="an_tid"/><!-- 存类型id的隐藏域 -->
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="an_picDiv" onmouseover="an_showPic()" onmouseout="an_movePic()">
+
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>作者:</label> <input id="an_author" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="an_videoDiv">
+
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>来源:</label> <input id="an_from" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="an_fileDiv">
+
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>时间:</label><input id="an_time" class="easyui-textbox" required="true"/>
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>是否对外公开:</label> 
+						<select id="an_temp2">
+							<option selected="selected">公开</option>
+							<option>不公开</option>
+						</select>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:400px;resize:none"  id="an_article"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:updateAwardNotice()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">修改</a> 
+</div>
+
+
+<script>
+	CKEDITOR.replace( 'an_article', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+</script>
+
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#awardNotice").edatagrid({
+			url : "../json/trendsAction_getTrendsByType",//查询时加载的URL
+			queryParams:{"trends.types_id":10015},
+			destroyUrl : "../json/trendsAction_delTrends",
+			idField : "tr_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,	
+			iconCls : "icon-tip",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "奖评公示管理",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'tr_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'dec',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+			{
+				field : 'tr_ids',
+				title : '编号',
+				width : 50,
+				align:'center',
+				checkbox:true
+			}, {
+				field : 'tr_id',
+				title : '新闻编号',
+				align:'center',
+				sortable:true,
+				width : 50,
+			}, {
+				field : 'tr_title',
+				title : '标题',
+				align:'center',
+				width : 90,
+			}, {
+				field : 'tr_time',
+				title : '发布时间',
+				align:'center',
+				width : 60,	
+			}, {
+				field : 'tr_author',
+				title : '作者',
+				align:'center',
+				width : 50,
+			}, {
+				field : 'tr_from',
+				title : '来源',
+				align:'center',
+				width : 50,
+			}, {
+				field : 'tr_video',
+				title : '视频编号',
+				align:'center',
+				width : 50,
+			} , {
+				field : 'tr_file',
+				title : '文件编号',
+				align:'center',
+				width : 50,
+			} ] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布奖评公示','loginAction_backGoTo_addAwardNotice');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#awardNotice').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openAwardNoticeUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findanInfo();
+				}
+			}]
+		});
+	})
+	//打开查找框
+	function findanInfo(){
+		$("#dawardNotice").dialog('open');
+	}
+
+	//查找
+	function searchFan(){
+		$("#dawardNotice").dialog('close');
+		var dantr_title=$.trim($("#dantr_title").val());
+		var dantr_author=$.trim($("#dantr_author").val());
+		var dantr_from=$.trim($("#dantr_from").val());
+		var dantr_time=$.trim($("#dantr_time").datebox("getValue"));
+		datagrid = $("#awardNotice").edatagrid({
+			url : "../json/trendsAction_findTrendsByMap",//查询时加载的URL
+			queryParams:{"trends.tr_time":dantr_time,"trends.types_id":10015,"trends.tr_title":dantr_title,"trends.tr_author":dantr_author,"trends.tr_from":dantr_from,"page":1,"rows":5},
+			
+			toolbar : [ {
+				text : '返回',
+				iconCls : 'icon-undo',
+				handler : function() {
+					backawardNotice();
+				}
+			}, '-',{
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布奖评公示','loginAction_backGoTo_addAwardNotice');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#awardNotice').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openAwardNoticeUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findanInfo();
+				}
+			}]
+		});
+		
+	}
+
+	function backawardNotice(){
+		datagrid = $("#awardNotice").edatagrid({
+			url : "../json/trendsAction_getTrendsByType",//查询时加载的URL
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布奖评公示','loginAction_backGoTo_addAwardNotice');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#awardNotice').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openAwardNoticeUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findanInfo();
+				}
+			}]
+		});
+	}
+	
+
+	//打开修改对话框
+	function openAwardNoticeUpdateDialog(){
+		var rows = $("#awardNotice").datagrid("getChecked");
+		if(rows.length<=0){
+			$.messager.show({
+				title:'错误提示',
+				msg:'请选择要修改的数据',
+				timeout:2000,
+				showType:'slide'
+			});
+			return;
+		}
+		var id = rows[0].tr_id;
+		$('#awardNoticeUpdateDialog').dialog('open').dialog('setTitle', '修改奖评公示');
+		//$('#foodfm').form('clear');
+		
+		$.post('../json/trendsAction_getTrendsById',{'trends.tr_id':id},function(data){
+			var tid = data.jsonObject[0].tr_id;
+			var title = data.jsonObject[0].tr_title;
+			var author = data.jsonObject[0].tr_author;
+			var from = data.jsonObject[0].tr_from;
+			var article = data.jsonObject[0].tr_article;
+			var picPath = data.jsonObject[0].tr_pic;
+			var videoid = data.jsonObject[0].tr_video;
+			var fileid = data.jsonObject[0].tr_file;
+			var videoName = data.jsonObject[0].temp1;
+			var time = data.jsonObject[0].tr_time;
+			var temp2 = data.jsonObject[0].temp2;
+			
+			$("#an_tid").val(tid);
+			$("#an_title").val(htmlEscape(title));
+			$("#an_author").val(htmlEscape(author));
+			$("#an_from").val(htmlEscape(from));
+			$("#an_time").val(htmlEscape(time));
+			$("#an_temp2").val(htmlEscape(temp2));
+			
+			//判断该动态有没有图片，决定在图片位置显示的内容
+			if(picPath != null && picPath !=""){
+				$("#an_picDiv").html("图片:<a class='littlebutton'  href='javascript:look_Pic(\""+picPath+"\")'>详细查看</a><a class='littlebutton' href='javascript:an_delPic(\""+picPath+"\")'>删除</a>"+
+					"<input type='hidden' id='han_pic'/>");	//存图片路径的隐藏域
+				$("#han_pic").val(picPath);		//将图片路径放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#an_picDiv").html("图片:<input type='file' name='tr_files' id='an_replacePic' accept='image/gif,image/jpeg,image/png' multiple='true' onchange=\"previewMultipleImage(this,'showPicLook')\"/>"+
+				"<input type='hidden' id='han_pic'/>");		//存图片路径的隐藏域
+			}
+			
+			
+			//判断该动态有没有视频
+			if(videoName != null && videoName !=""){
+				$("#an_videoDiv").html("视频:<span id='an_video' style='margin-right:70px'></span>"+
+					"<a class='littlebutton'>替换</a><a class='littlebutton' href='javascript:an_delVideo()'>删除</a>"+
+					"<input type='file' class='hidden' name='tr_files' id='an_replaceVideo' accept='audio/mp4,video/mp4,MPEG-4 Audio/Video' onchange='an_videoChanged()' />"+
+					"<input type='hidden' id='han_video'/>");		//存视频id的隐藏域
+				$("#an_video").html(videoName);
+				$("#han_video").val(videoid);	//将视频id放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#an_videoDiv").html("视频:<input type='file' name='tr_files'  id='an_replaceVideo' accept='audio/mp4,video/mp4,MPEG-4 Audio/Video'/>"+
+				"<input type='hidden' id='han_video'/>");		//存视频id的隐藏域
+			}
+			
+			//判断该动态有没有文件
+			if(fileid != null && fileid !=""){
+				$("#an_fileDiv").html("文件:<a href='javascript:checkFileList(\""+fileid+"\")'>查看详情</a>"+
+				"<a class='littlebutton' href='javascript:an_delFile()'>删除</a>"+
+				"<input type='hidden' id='han_file'/>");		//存文件id的隐藏域
+				$("#an_file").html(fileid);
+				$("#han_file").val(fileid);		//将文件id放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#an_fileDiv").html("文件:<input type='file' name='tr_files' id='an_replaceFile' accept='application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip' multiple='true'/>"+
+				"<input type='hidden' id='han_file'/>");		//存文件id的隐藏域
+			}
+			CKEDITOR.instances.an_article.setData( article );
+		},"json");
+	}
+	
+	function an_picChanged(){
+    	$("#an_replacePic").css("opacity",1);
+		$("#an_pic").css("opacity",0);
+		previewImage(this,'showPic','previewImg');
+    }
+    
+    function an_videoChanged(){
+    	$("#an_replaceVideo").css("opacity",1);
+		$("#an_video").css("opacity",0);
+    }
+    
+    function an_fileChanged(){
+    	$("#an_replaceFile").css("opacity",1);
+		$("#an_file").css("opacity",0);
+    }
+
+	//修改动态时删除图片
+	function an_delPic(picPath){
+		$("#an_picDiv").html("图片:<input type='file' name='tr_files' id='an_replacePic' accept='image/gif,image/jpeg,image/png' multiple='true'/ onchange=\"previewMultipleImage(this,'showPicLook')\">"+
+				"<input type='hidden' id='han_pic'/>");		//存图片路径的隐藏域
+		$("#han_pic").val("");
+	}	
+	
+	//修改动态时删除视频
+	function an_delVideo(){
+		$("#han_video").val("");
+		$("#an_replaceVideo").css("opacity",0);
+		$("#an_video").css("opacity",0);
+	}
+	
+	//修改动态时删除文件
+	function an_delFile(){
+		$("#an_fileDiv").html("文件:<input type='file' name='tr_files' id='an_replaceFile' accept='application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip' onchange='an_fileChanged()' multiple='true'/>"+
+		"<input type='hidden' id='han_file'/>");
+	}
+	
+	//修改
+	function updateAwardNotice(){
+		var tid = $("#an_tid").val();
+		var title = html2Escape($("#an_title").val());
+		var author = html2Escape($("#an_author").val());
+		var from = html2Escape($("#an_from").val());
+		var pic = $("#han_pic").val();
+		var video = $("#han_video").val();
+		var file = $("#han_file").val();
+		var article = CKEDITOR.instances.an_article.getData();
+		var time = $("#an_time").val();
+		var temp2 = $.trim($("#an_temp2").find("option:selected").text());
+		if(time.length!=0){    
+	        var reg = /^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/;     
+	        var r = time.match(reg);     
+	        if(r==null){   
+	            $.messager.alert('错误提示','对不起，您输入的日期格式不正确!','error');//请将“日期”改成你需要验证的属性名称!
+	            return;   
+	         } 
+        }else{
+        	$.messager.alert('错误提示','日期不能为空','error');
+        	return;   
+        }  
+		if($.trim(title)==''){
+			$.messager.alert('错误提示','标题不能为空','error');
+			return;
+		}
+		
+		if($.trim(author)==''){
+			$.messager.alert('错误提示','作者不能为空','error');
+			return;
+		}
+		
+		if($.trim(from)==''){
+			$.messager.alert('错误提示','来源不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(article))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		//如果没有要上传的
+		if($("#an_replacePic").val()=="" && $("#an_replaceVideo").val()=="" && $("#an_replaceFile").val()==""){
+			$.post('../json/trendsAction_updateTrends',{
+				'trends.tr_id':tid,
+				'trends.tr_title':title,
+				'trends.tr_author':author,
+				'trends.tr_from':from,
+				'trends.tr_pic':pic,
+				'trends.tr_article':article,
+				'trends.tr_video':video,
+				'trends.tr_file':file,
+				'trends.tr_time':time,
+				'trends.temp2':temp2
+			},function(data){
+				data = parseInt($.trim(data));
+				if(data>=1){
+					$.messager.show({
+						title:'成功提示',
+						msg:'通知修改成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+					//关闭窗口
+					$('#awardNoticeUpdateDialog').window('close');
+					
+					//刷新数据
+					$("#awardNotice").datagrid('load',{"trends.types_id":10015});
+				}else{
+					$.messager.alert('错误提示','修改失败,请重试','error');
+				}
+			});
+		}
+		//如果有要上传的
+		else{
+			progress();//显示进度条
+			$.ajaxFileUpload({
+				url:'../json/trendsAction_updateAndUploadTrends',
+				secureuri:false,
+				data:{'trends.tr_id':tid,
+					'trends.tr_title':title,
+					'trends.tr_author':author,
+					'trends.tr_from':from,
+					'trends.tr_article':article,
+					'trends.tr_pic':pic,
+					'trends.tr_video':video,
+					'trends.tr_file':file,
+					'trends.tr_time':time,
+					'trends.temp2':temp2
+				},
+				dataType:'json',
+				fileElementId:['an_replacePic','an_replaceVideo','an_replaceFile'],	//图片文本框id
+				success:function(data){
+					$.messager.progress('close');//关闭进度条
+					data = parseInt($.trim(data));
+					if(data>=0){
+						$.messager.show({
+							title:'成功提示',
+							msg:'文件上传成功！',
+							timeout:2000,
+							showType:'slide'
+						});
+						//关闭窗口
+						$('#awardNoticeUpdateDialog').window('close');
+						
+						//刷新数据
+						$("#awardNotice").datagrid('load',{"trends.types_id":10015});
+					}else{
+						$.messager.alert('错误提示','文件上传失败,请选择规定格式的文件','error');
+					}
+				},
+				error:function(data,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert('错误提示','发布失败，请检查网络...','error');
+				}
+			});
+		}
+	}
+	
+	
+	function Open(text, url) { 
+         if ($("#tabs").tabs('exists', text)) { 
+            $('#tabs').tabs('select', text); 
+        }else { 
+            $('#tabs').tabs('add', { 
+                title : text, 
+                closable : true, 
+                href : url 
+            }); 
+        } 
+    } 
+
+	function ShowImage(value, img) {
+		img.src = value;
+		img.style.visibility = "visible";
+	}
+	function an_showPic(){
+		var imgsrc=$("#an_previewImg").attr('src');	
+		if(imgsrc!=null && imgsrc!=''){
+			$("#an_showPic").css("opacity",1);
+		}
+		
+	}
+	function an_movePic(){
+		$("#an_showPic").css("opacity",0);
+	}
+</script>

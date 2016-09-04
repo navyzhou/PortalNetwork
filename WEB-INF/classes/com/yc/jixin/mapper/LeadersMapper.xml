@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据编号或链接名或链接地址查询 -->
+	<select id="getAllLeader" parameterType="Leaders" resultType="Leaders">
+		select lea_id,lea_post,lea_name,les_photo,lea_intro from leaderInfo
+		<where>
+			<if test="lea_id!=null">
+				lea_id=#{lea_id}
+			</if>
+			<if test="lea_post!=null">
+				lea_post=#{lea_post}
+			</if>
+			<if test="lea_name!=null">
+				lea_name=#{lea_name}
+			</if>
+			<if test="les_photo!=null">
+				les_photo=#{les_photo}
+			</if>
+			<if test="lea_name!=null">
+				lea_intro=#{lea_intro}
+			</if>
+		</where>
+	</select>
+
+	<!-- 分页查询 -->
+	<select id="getByPageLeader" parameterType="PageParams" resultType="Leaders">
+		<choose>
+			<when test="pageNo!=null and pageNum!=null">
+				select lea_id,lea_post,lea_name,les_photo,lea_intro from (
+					select lea_id,lea_post,lea_name,les_photo,lea_intro, rownum rn from (
+									select l.lea_id,l.lea_post,l.lea_name,l.les_photo,l.lea_intro from leaderInfo l order by l.lea_id)
+										where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select lea_id,lea_post,lea_name,les_photo,lea_intro from leaderInfo
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--添加链接  -->
+	<insert id="addLeaders" parameterType="Leaders">
+		insert into leaderInfo values(seq_lea_id.nextval,#{lea_post},#{lea_name},#{les_photo},#{lea_intro},null,null)
+	</insert>
+	
+	<!-- 修改链接 -->
+	<update id="updateLeaders" parameterType="Leaders">
+		update leaderInfo
+		<set>
+			<if test="lea_post!=null">
+				lea_post=#{lea_post},
+			</if>
+			<if test="lea_name!=null">
+				lea_name=#{lea_name},
+			</if>
+			<if test="les_photo!=null">
+				les_photo=#{les_photo},
+			</if>
+			<if test="lea_intro!=null">
+				lea_intro=#{lea_intro},
+			</if>
+		</set>
+		where lea_id=#{lea_id}
+	</update>
+	
+	<!-- 多条删除链接 -->
+	<delete id="delLeaders" parameterType="int">
+		delete from leaderInfo where lea_id=#{_parameter}
+	</delete>
+	
+	<!-- 查询链接总数 -->
+	<select id="getLeadersTotal" resultType="int">
+		select count(*) from leaderInfo
+	</select>
+	
+	
+	<select id="findInfoByMap" parameterType="Map" resultType="Leaders">
+	select lea_id,lea_post,lea_name,les_photo,lea_intro from(
+		select lea_id,lea_post,lea_name,les_photo,lea_intro,rownum rn from leaderInfo
+		<where>
+		     <if test="_parameter.containsKey('lea_post')"> 
+        		and lea_post like CONCAT(CONCAT('%',#{lea_post} ),'%')
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('lea_name')">  
+        		and lea_name like CONCAT(CONCAT('%',#{lea_name} ),'%')
+    		</if>
+    		 
+    		<if test="_parameter.containsKey('max')">  
+        		AND	rownum &lt;=#{max} order by lea_id desc) 
+    		</if>
+    		
+		</where>
+		<if test="_parameter.containsKey('min')">  
+        		where rn>#{min} 
+    	</if>
+	</select>
+	
+	<select id="findInfoByMapCount" parameterType="Map" resultType="int">
+	
+		select count(*) from leaderInfo
+		<where>
+		     <if test="_parameter.containsKey('lea_post')"> 
+        		and lea_post like CONCAT(CONCAT('%',#{lea_post} ),'%')
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('lea_name')">  
+        		and lea_name like CONCAT(CONCAT('%',#{lea_name} ),'%')
+    		</if>
+    		
+		</where>
+		
+	</select>
+</mapper>

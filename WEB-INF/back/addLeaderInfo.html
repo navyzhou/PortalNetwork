@@ -1,0 +1,168 @@
+﻿<table id="leaderInfoTable"></table>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+
+<div id="leaderInfoDialog" style="width:800px;height:600px;padding:10px 20px" closed="true" buttons="#dlg-buttons">
+	<div class="ftitle">添加领导信息</div>
+	<form id="leaderInfoForm" method="post" enctype="multipart/form-data">
+		<table style="width:800px;">
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>姓名:</label> <input id="lea_name" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem">
+						照片:<input type="file" name="les_photo" id="les_photo" onchange="uploadPhoto()"/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>职务:</label> <input name="lea_post" id="lea_post" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:400px;resize:none"  id="lea_intro" name="lea_intro"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:addLeaderInfo()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">发布</a> 
+</div>
+
+<script>
+	CKEDITOR.replace( 'lea_intro', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+	CKEDITOR.editorConfig = function( config ){
+	    // Define changes to default configuration here. For example:
+	    config.language = 'zh-cn';
+	    config.uiColor = '#AADC6E';
+	    config.resize_enabled = false;
+	};
+
+</script>
+
+
+<script type="text/javascript">
+	//上传图片
+	function uploadPhoto(){
+		progress();//显示进度条
+		$.ajaxFileUpload({
+			url:'../json/leaderAction_uploadPic',
+			secureuri:false,
+			fileElementId:'les_photo',	//图片文本框id
+			dataType:'text',
+			success:function(data){
+				$.messager.progress('close');//关闭进度条
+				if(data!="" && data != null){
+					$.messager.show({
+						title:'成功提示',
+						msg:'图片上传成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+				}else{
+					$.messager.alert('错误提示','图片上传失败,请重新选择图片','error');
+				}
+			},
+			error:function(data,e){
+				$.messager.progress('close');//关闭进度条
+				$.messager.alert('错误提示','图片上传失败'+data,'error');
+			}
+		});
+	}
+	
+	//添加领导信息
+	function addLeaderInfo(){
+		var name =html2Escape( $("#lea_name").val());
+		var post = html2Escape($("#lea_post").val());
+		var intro = CKEDITOR.instances.lea_intro.getData();
+		
+		if($.trim(name)==''){
+			$.messager.alert('错误提示','名字不能为空','error');
+			return;
+		}
+		
+		if($.trim(post)==''){
+			$.messager.alert('错误提示','职务不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(intro))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		$.post('../json/leaderAction_addLeaderInfo',{
+			'leaders.lea_name':name,
+			'leaders.lea_post':post,
+			'leaders.lea_intro':intro,
+		},function(data){
+			data = parseInt($.trim(data));
+			if(data>=1){
+				$.messager.show({
+					title:'成功提示',
+					msg:'领导信息添加成功！',
+					timeout:2000,
+					showType:'slide'
+				});
+				//关闭选项卡
+				$('#tabs').tabs('close','添加领导信息'); 
+				
+				//刷新数据
+				$("#leaderInfo").datagrid('load',{});
+			}else{
+				$.messager.alert('错误提示','公告发布失败,请重试','error');
+			}
+		});
+	}
+</script>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 查所有文件 -->
+	<select id="getAllFiles" resultType="Files">
+		select to_number(file_id) as file_id,file_name,to_char(file_upload,'yyyy-mm-dd hh24:mi:ss') as file_upload,file_savename,file_download from files order by file_id         
+	</select>
+	
+	<!-- 分页 -->
+	<select id="getFilesByPage" parameterType="PageParams" resultType="Files">
+		select file_id,file_name,file_savename,file_upload,file_download from (
+				select file_id,file_name,file_savename,file_upload,file_download,rownum rn from (
+					select to_number(file_id) as file_id,file_name,file_savename,to_char(file_upload,'yyyy-mm-hh')file_upload,file_download from files order by file_id desc) where rownum &lt;=#{max}) where rn>#{min}
+	</select>
+	
+	<!-- 查询总条数 -->
+	<select id="getFilesTotal" resultType="Integer">
+		select count(file_id) from files
+	</select>
+	
+	<!-- 根据id查文件 -->
+	<select id="getFilesById" parameterType="Long" resultType="Files">
+		select to_number(file_id) as file_id,file_name,file_savename,file_upload,file_download from files 
+			where file_id = #{file_id}
+	</select>
+	
+	<!-- 添加文件 -->
+	<insert id="addFiles" parameterType="Files">
+		insert into files values(#{file_id},#{file_name},#{file_savename},sysdate,0,null,null)
+	</insert>
+	
+	<!-- 删除文件 -->
+	<delete id="delFiles" parameterType="Files">
+		delete from files where file_id = #{file_id}
+	</delete>
+	
+	<select id="getFilesTotl" resultType="int">
+		select count(*) from files
+	</select>
+	
+	<select id="getByPageFiles" parameterType="PageParams" resultType="Files">
+	<choose>
+			<when test="pageNo!=null and pageNum!=null">
+			select file_id,file_name,file_savename,file_upload,file_download from (
+				select file_id,file_name,file_savename,file_upload,file_download,rownum rn from (
+					select to_number(file_id) as file_id,file_name,file_savename,to_char(file_upload,'yyyy-mm-hh')file_upload,file_download from files order by file_id desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select to_number(file_id) as file_id,file_name,file_savename,to_char(file_upload,'yyyy-mm-hh')file_upload,file_download from files order by file_id desc
+			</otherwise>
+		</choose>
+		
+	</select>
+</mapper>

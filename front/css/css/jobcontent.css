@@ -1,0 +1,22 @@
+@charset "utf-8";
+/* CSS Document */
+.jumbotron p {
+    font-size: 15px;
+    font-weight: 200;
+    margin-bottom: 15px;
+}
+.amore{
+	float:right;
+	margin-right:10px;
+}
+.author{
+	float:right;
+}
+
+#myjobcontent{
+	margin-top:20px;
+}
+
+#zhengce{
+	margin-top:20px;
+}

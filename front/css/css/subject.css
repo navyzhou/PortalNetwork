@@ -1,0 +1,20 @@
+@charset "utf-8";
+/* CSS Document */
+
+.mypanela{
+	float:right;
+	margin-right:10px;
+}
+
+.mylist{
+	text-align:center;
+	margin-top:5px;
+}
+
+#mynavtop{
+	margin-top:200px;
+}
+
+.myheight{
+	height:290px;
+}

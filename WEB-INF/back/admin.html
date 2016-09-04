@@ -1,0 +1,240 @@
+﻿<table id="admin"></table>
+
+<div id="addAdminDialog" class="easyui-dialog" style="width:500px;height:300px;padding:10px 20px" 
+	closed="true" buttons="#addAdmin-buttons">
+	<center>
+	<form id="addAddminInfo" method="post" enctype="multipart/form-data">
+		<table>
+			<br/>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							用户名:
+						</label>
+						<input id="admin_id" onblur="checkAdminName()" class="easyui-textbox" required="true">
+						<br/>
+					</div>	
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+							账户初始密码默认为：aaaaaa，请告知管理员及时更改！
+					</div>	
+				</td>
+			</tr>
+			<!-- 
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							密码:
+						</label>
+						<input id="abdd_id" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			 -->
+		</table>
+	</form>
+	</center>
+</div>
+<div id="addAdmin-buttons" class="dialog-button">
+	<a id="addAdmin-buttonsa" href="javascript:addAdmin()" class="easyui-linkbutton c6" 
+		iconCls="icon-ok" style="width:90px;margin-right:200px">创建</a> 
+</div>
+
+
+<div id="reSet-dialog" class="easyui-dialog" style="width:400px;height:200px"
+		data-options="title:'重置密码',buttons:'#reSetButton'" closed="true">
+	
+	<br/><br/>&nbsp;&nbsp;&nbsp;&nbsp;您将重置该账户密码为：aaaaaa，是否继续？
+</div>
+<div id="reSetButton">
+	<a href="javascript:resetPassword()" class="easyui-linkbutton">确定</a>
+	<a href="javascript:closeResetDialog()" class="easyui-linkbutton">取消</a>
+</div>
+
+
+
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+.littlebutton{
+	color:blue;
+	margin-left:5px;
+}
+
+.hidden {
+	opacity: 0;
+	position: absolute;
+	z-index: 10;
+	width:25px;
+	margin-left:-190px;
+	margin-top:-5px;
+}
+</style>
+
+<script>
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		var datagrid = $("#admin").edatagrid({
+			url : "../json/loginAction_getAllAdmin",//查询时加载的URL
+			destroyUrl : "../json/loginAction_delAdmin",
+			idField : "aid", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 10,//分页大小
+			pageList : [ 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,	
+			iconCls : "icon-tip",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "管理员账户",
+			nowrap : true,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'aid',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'desc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+				{
+					field : 'aid',
+					width : 50,
+					align:'center',
+					checkbox:true
+				}, {
+					field : 'aname',
+					title : '用户名',
+					align:'center',
+					width : 50,
+				}, {
+					field : 'apassword',
+					title : '密码',
+					align:'center',
+					width : 70,
+					formatter:function(value,rowData){
+						var str="**********";
+						return str;
+					}
+				}
+			 ] ],
+			toolbar : [ {
+				text : '创建新账户',
+				iconCls : 'icon-add',
+				handler : function() {
+					$('#addAdminDialog').dialog('open').dialog('setTitle', '创建新管理员账户');
+				}
+			}, '-', {
+				text : '删除账户',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#admin').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '重置密码',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openReset();
+				}
+			}  ]
+		});
+	});
+	
+	//添加管理员
+	function addAdmin(){
+		var name = $("#admin_id").val();
+		$.post('../json/loginAction_addAdmin',{'adminInfo.aname':name},function(data){
+			data = parseInt($.trim(data));
+			if (data > 0) {
+				$.messager.show( {
+					title : '成功提示',
+					msg : '账户创建成功！',
+					timeout : 2000,
+					showType : 'slide'
+				});
+				//关闭窗口
+				$('#addAdminDialog').window('close');
+				//刷新数据
+				$("#admin").datagrid('reload');
+			} else {
+				$.messager.alert('错误提示', '账户创建失败,请重试', 'error');
+			}
+		});
+	}
+	
+	function checkAdminName(){
+		var name = $("#admin_id").val();
+		$.post("../json/loginAction_checkAdminRepeat",{'adminInfo.aname':name},function(data){
+			data = parseInt($.trim(data));
+			if(data>0){
+				$.messager.alert('错误提示', '改用户名已使用,请重新输入', 'error');
+				$('#addAdmin-buttonsa').linkbutton('disable');
+			}else{
+				$('#addAdmin-buttonsa').linkbutton('enable');
+			}
+		});
+	}
+	
+	function openReset(){
+		var rows = $("#admin").datagrid("getChecked");
+		if(rows.length<=0){
+			$.messager.show({
+				title:'错误提示',
+				msg:'请选择要修改的数据',
+				timeout:2000,
+				showType:'slide'	
+			});
+			return;
+		}
+		var id = rows[0].aid;
+		$('#reSet-dialog').dialog('open').dialog('setTitle', '重置密码');
+	}
+	
+	function resetPassword(){
+		var rows = $("#admin").datagrid("getChecked");
+		var id = rows[0].aid;
+		$.post('../json/loginAction_resetPwd',{'adminInfo.aid':id},function(data){
+			data = parseInt($.trim(data));
+			if(data>=1){
+				$.messager.show({
+					title:'成功提示',
+					msg:'密码重置成功！',
+					timeout:2000,
+					showType:'slide'
+				});
+				//关闭窗口
+				$('#reSet-dialog').window('close');
+				
+				//刷新数据
+				$("#admin").datagrid('load',{});
+			}else{
+				$.messager.alert('错误提示','修改失败,请重试','error');
+			}
+		});
+	}
+	
+	function closeResetDialog(){
+		$('#reSet-dialog').window('close');
+	}
+</script>

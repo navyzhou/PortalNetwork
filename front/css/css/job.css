@@ -1,0 +1,52 @@
+@charset "utf-8";
+/* CSS Document */
+.panel-footer a {
+    display: block;
+    text-align:center;
+    text-decoration: none;
+    width: 100%;
+}
+
+#myjob .media-body{
+	 width: 550px;
+	 height:100px;
+}
+#myshengya .media-body{
+	 width: 550px;
+	 height:100px;
+}
+#myjiuye .media-body{
+	 width: 550px;
+	 height:100px;
+}
+
+.myheight{
+	height:230px;
+}
+
+.myheight2{
+	height:200px;
+}
+
+.myheight3{
+	height:300px;
+}
+
+#mymingxing img{
+	width:160px;
+	height:160px;
+}
+
+#one_jobInfo {
+	height: 200px;
+	margin-top: 20px;
+}
+.starInfo {
+	text-align: center;
+}
+.media{
+	margin-top: 10px;
+	margin-bottom: 10px;
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	padding: 5px;
+}

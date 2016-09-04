@@ -1,0 +1,43 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+#mynav{
+	width:180px;
+	position:fixed;
+
+}
+
+#mynav a{
+    color:#FFF;
+    text-decoration: none;
+}
+
+.amore{
+	float:right;
+	margin-right:10px;
+}
+
+
+.mybtna{
+	text-align:center;
+}
+.thumbnail img{
+	width:180px;
+	height:190px;
+}
+
+.jumbotron p {
+    font-size: 16px;
+    font-weight: 200;
+    margin-bottom: 15px;
+}
+
+#myjigou img{
+	text-align: center;	
+	width: 80%;
+}
+section span{
+	  color: #fff;
+	  font-size:25px;
+}

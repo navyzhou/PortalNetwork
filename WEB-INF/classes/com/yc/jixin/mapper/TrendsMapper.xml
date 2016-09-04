@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 查找滚动新闻（分页） -->
+	<select id="getRollingNews" parameterType="pageParams" resultType="Trends">
+		<choose>
+			<when test="pid!=null and pageNo!=null and pageNum!=null">
+				select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click,temp1,temp2 from(
+					select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click,rownum rn,temp1,temp2 from (
+					select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_click,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends where types_id =#{pid} order by tr_time desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<when test="pageNo!=null and pageNum!=null">
+				select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click,temp1,temp2  from(
+					select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click ,rownum rn,temp1,temp2 from (
+						select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_click ,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends order by tr_time desc) where rownum &lt;=#{max}) where rn>#{min} 
+			</when>
+			<otherwise>
+				select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends order by tr_time desc
+			</otherwise>
+		</choose> 
+		
+	</select>
+	
+	<!-- 查询滚动新闻总条数 -->
+	<select id="getRollingNewsTotal" resultType="int">
+		select count(tr_id) from trends where types_id = 10001
+	</select>
+	
+	
+	<!-- 根据types_id查找动态-->
+	<select id="getTrendsByTypesId" parameterType="pageParams" resultType="Trends">
+		select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click,temp1,temp2 from(
+				select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click,rownum rn,temp1,temp2 from (
+					select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_click,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends where types_id =#{pid} order by tr_time desc) where rownum &lt;=#{max}) where rn>#{min}
+	</select>
+	
+	<!-- 查询计信新闻总条数 -->
+	<select id="getTrendsTotal" parameterType="Integer" resultType="Integer">
+		select count(tr_id) from trends where types_id = #{types_id}
+	</select>
+	
+	<!-- 根据tr_id查动态 -->
+	<select id="getTrendsById" resultType="Trends">
+		select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,to_char(tr_time,'yyyy-mm-dd hh:mi:ss') tr_time,tr_click,temp1,temp2 from trends
+		<if test="tr_id!=null and tr_id!=''">
+			where tr_id = #{tr_id}
+		</if>
+		<if test="types_id!=null and types_id!=''">
+			and types_id = #{types_id}
+		</if>
+	</select>
+	
+	
+	
+	<!-- 
+	<resultMap id="trendsMap" type="Trends" autoMapping="true">
+		<id property="tr_id" column="tr_id"/> 
+		<association property="videos" column="video_id" 
+			select="com.yc.jixin.dao.VideosDao.getVideoById" />
+		<association property="files" column="file_id" 
+			select="com.yc.jixin.dao.FileDao.getFilesById"/>
+	</resultMap>
+	 -->
+
+
+	<!-- 根据tr_id查动态，将temp设为视频名 -->
+	<select id="getTrendsForBack" resultType="Trends">
+		<!--  <select tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,to_char(tr_time,'yyyy/mm/dd') tr_time,tr_click,temp1,temp2 from trends
+		<if test="tr_id!=null and tr_id!=''">
+			where tr_id = #{tr_id}
+		</if>
+		-->
+		  select video_name as temp1, ttt.file_name,tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click ,limit as temp2 from( 
+			select ttype_name as file_name,tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click,limit  from (
+				select ttype_name,tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,to_char(tr_time,'yyyy-mm-dd') as tr_time,tr_click, tt.temp2 as limit from
+				  trends tt,trends_type ty where tt.types_id=ty.ttype_id and tt.tr_id=#{tr_id})) ttt left join videos v on ttt.tr_video=v.video_id
+	</select>
+	
+	
+	<!-- 添加动态 -->
+	<insert id="addTrends" parameterType="Trends">
+		insert into trends values(seq_trends.nextval,#{types_id},#{tr_title},#{tr_author},#{tr_from},#{tr_article},#{tr_pic},#{tr_video},#{tr_file},to_date(#{tr_time},'yyyy-mm-dd'),0,null, #{temp2})   
+	</insert>
+	
+	<!-- 修改滚动新闻 -->
+	<update id="updateTrends" parameterType="Trends">
+		update trends
+		<set>
+			tr_pic = #{tr_pic},
+			tr_video = #{tr_video},
+			tr_file =　#{tr_file},
+			tr_time = to_date(#{tr_time},'yyyy-mm-dd'),
+			temp2 = #{temp2},
+			<if test="tr_title!=null and tr_title!=''">
+				tr_title = #{tr_title},
+			</if>
+			<if test="tr_author!=null and tr_author!=''">
+				tr_author = #{tr_author},
+			</if>
+			<if test="tr_from!=null and tr_from!=''">
+				tr_from = #{tr_from},
+			</if>
+				tr_article = #{tr_article}
+		</set>
+		where tr_id = #{tr_id}
+	</update>
+	
+	<!-- 将动态新闻该为计信新闻 -->
+	<update id="delRollingNews" parameterType="Trends">
+		update trends
+		<set>
+			types_id = 10002,
+		</set>
+		where tr_id = #{tr_id}
+	</update>
+	
+	
+	<!-- 删除动态 -->
+	<delete id="deleteTredns" parameterType="Integer">
+		delete from trends where tr_id = #{trId}
+	</delete>
+	
+	
+	<!-- 上一条动态 -->
+	<select id="prvTrends" parameterType="Trends" resultType="Trends">
+		select tr_id,types_id,tr_title,temp1,temp2 from trends where tr_id=(
+			select c.p from (
+				select tr_id,lag(tr_id,1,0)  over (order by tr_id) as p from trends) c where c.tr_id=#{tr_id} and types_id=#{types_id})
+	</select>
+	<!-- 下一条动态 -->
+	<select id="nextTrends" parameterType="Trends" resultType="Trends">
+		select tr_id,types_id,tr_title,temp1,temp2 from trends where tr_id=(
+			select c.p from (
+				select tr_id,lead(tr_id,1,0)  over (order by tr_id) as p from trends) c where c.tr_id=#{tr_id} and types_id=#{types_id})
+	</select>
+	
+	
+	<select id="findTrend" parameterType="int" resultType="Trends">
+		select tr_id,types_id,tr_title,temp1,temp2 from trends where types_id=#{_parameter} order by tr_id desc
+	</select>
+	
+	<update id="updateClick" parameterType="int">
+		update trends
+		<set>
+			 tr_click=tr_click+1
+		</set>
+		where tr_id=#{_parameter}
+	</update>
+	
+	<update id="updateFile" parameterType="Long">
+		update trends
+		<set>
+			 tr_file=0
+		</set>
+		where tr_file=#{_parameter}
+	</update>
+	
+	<!-- 分页查询 查出标题 -->
+	<select id="searchByPageTrends" parameterType="com.yc.jixin.beans.PageParams" resultType="com.yc.jixin.beans.Trends">
+		<choose>
+			<when test="pti!=null and pageNo!=null and pageNum!=null">
+					select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,temp1,temp2 from(
+						select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,rownum rn,temp1,temp2 from (
+							select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends where tr_title LIKE CONCAT(CONCAT('%',#{pti}),'%') order by tr_id desc) where rownum &lt;=#{max}) where rn>#{min}
+	
+			</when>	
+			
+			<when test="pageNo!=null and pageNum!=null">
+				select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,temp1,temmp2 from(
+					select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,rownum rn,temp1,temp2 from (
+						select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends order by tr_id desc) where rownum &lt;=#{max}) where rn>#{min} 
+			</when>
+			<when test="pti!=null and pageNo==null and pageNum==null">
+				select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends where tr_title LIKE CONCAT(CONCAT('%',#{pti}),'%') order by tr_id desc
+			</when>
+			<otherwise>
+				select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends order by tr_id desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查询计信新闻总条数 -->
+	<select id="searchByPageTrendsTotal"  parameterType="java.lang.String" resultType="Integer">
+		select count(*) from trends where  tr_title LIKE CONCAT(CONCAT('%',#{_parameter}),'%')
+	</select>
+	
+	
+	<select id="findTrendByMap" parameterType="Map" resultType="com.yc.jixin.beans.Trends">
+	select tr_article, tr_from,tr_author,tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,tr_time,temp1,temp2 from(
+		select tr_article,  tr_from,tr_author,tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time ,rownum rn,temp1,temp2 from trends
+		<where>
+			 <if test="_parameter.containsKey('types_id')"> 
+        		and types_id like CONCAT(CONCAT('%',#{types_id} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_title')"> 
+        		and tr_title like CONCAT(CONCAT('%',#{tr_title,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_author')"> 
+        		and tr_author like CONCAT(CONCAT('%',#{tr_author,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_from')"> 
+        		and tr_from like CONCAT(CONCAT('%',#{tr_from,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		 <if test="_parameter.containsKey('tr_time')">  
+        		AND tr_time like to_date(#{tr_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		<if test="_parameter.containsKey('max')">  
+        		AND	rownum &lt;=#{max} order by tr_id desc) 
+    		</if>
+    		
+		</where>
+		<if test="_parameter.containsKey('min')">  
+        		where rn>#{min} 
+    	</if>
+	</select>
+	
+	<select id="findTrendByMapCount" parameterType="Map" resultType="int">
+		select count(*) from trends
+		<where>
+			 <if test="_parameter.containsKey('types_id')"> 
+        		and types_id like CONCAT(CONCAT('%',#{types_id} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_title')"> 
+        		and tr_title like CONCAT(CONCAT('%',#{tr_title,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_author')"> 
+        		and tr_author like CONCAT(CONCAT('%',#{tr_author,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_from')"> 
+        		and tr_from like CONCAT(CONCAT('%',#{tr_from,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('tr_time')">  
+        		AND tr_time like to_date(#{tr_time,jdbcType=VARCHAR},'yyyy-mm-dd') 
+    		</if>
+    	</where>
+	</select>
+	
+</mapper>

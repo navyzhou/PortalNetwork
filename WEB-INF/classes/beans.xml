@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.1.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 导入数据库连接资源 -->
+	<context:property-placeholder location="classpath:db.properties"/>
+
+	<!-- 数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${driverName}" />
+		<property name="jdbcUrl" value="${url}" />
+		<property name="user" value="${user}" />
+		<property name="password" value="${password}" />
+		<!-- 连接池中的最大值 -->
+		<property name="maxPoolSize" value="20"></property>
+
+		<property name="minPoolSize" value="2"></property>
+	</bean>
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+		scope="prototype">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
+	</bean>
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate"
+		scope="prototype">
+		<constructor-arg ref="sqlSessionFactory"></constructor-arg>
+	</bean>
+
+	<!-- 实体类 -->
+	<bean id="admin" class="com.yc.jixin.beans.Admin"></bean>
+	<bean id="comments" class="com.yc.jixin.beans.Comments"></bean>
+	<bean id="dormNotices" class="com.yc.jixin.beans.DormNotices"></bean>
+	<bean id="files" class="com.yc.jixin.beans.Files"></bean>
+	<bean id="video" class="com.yc.jixin.beans.Videos"></bean>
+	<bean id="pageParams" class="com.yc.jixin.beans.PageParams"></bean>
+	<bean id="trends" class="com.yc.jixin.beans.Trends"></bean>
+	<bean id="jobInfo" class="com.yc.jixin.beans.JobInfo"></bean>
+	<bean id="indexTopPic" class="com.yc.jixin.beans.IndexTopPic"></bean>
+	<bean id="jsonObject" class="com.yc.jixin.beans.JsonObject"></bean>
+	<bean id="leaders" class="com.yc.jixin.beans.Leaders"></bean>
+	<bean id="links" class="com.yc.jixin.beans.Links"></bean>
+	<bean id="losts" class="com.yc.jixin.beans.Losts"></bean>
+	<bean id="messages" class="com.yc.jixin.beans.Messages"></bean>
+	<bean id="organizations" class="com.yc.jixin.beans.Organizations"></bean>
+	<bean id="trendsType" class="com.yc.jixin.beans.TrendsType"></bean>
+	<bean id="phoneInfo" class="com.yc.jixin.beans.PhoneInfo"></bean>
+	<bean id="dormPublic" class="com.yc.jixin.beans.DormPublic"></bean>
+
+
+	<!-- 配置Dao -->
+	
+	<bean id="adminDaoImpl" class="com.yc.jixin.dao.impl.AdminDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="commentsDao" class="com.yc.jixin.dao.impl.CommentsDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="jobInfoDao" class="com.yc.jixin.dao.impl.JobInfoDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="linkDaoImpl" class="com.yc.jixin.dao.impl.LinkDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="indexTopPicDao" class="com.yc.jixin.dao.impl.IndexTopPicDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="lostDaoImpl" class="com.yc.jixin.dao.impl.LostDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="leaderDaoImpl" class="com.yc.jixin.dao.impl.LeaderDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="trendsTypeDaoImpl" class="com.yc.jixin.dao.impl.TrendsTypeDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="trendsDaoImpl" class="com.yc.jixin.dao.impl.TrendsDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="filedao" class="com.yc.jixin.dao.impl.FileDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="videosDao" class="com.yc.jixin.dao.impl.VideosDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="phoneInfoDaoImpl" class="com.yc.jixin.dao.impl.PhoneInfoDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="messageDaoImpl" class="com.yc.jixin.dao.impl.MessageDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	
+	<bean id="dormNoticeDao" class="com.yc.jixin.dao.impl.DormNoticeDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	<bean id="dormPublicDao" class="com.yc.jixin.dao.impl.DormPublicDaoImpl">
+		<property name="sqlSession" ref="sqlSession"></property>
+	</bean>
+	
+	<bean id="cacheUtil" class="com.yc.jixin.untils.CacheUtil">
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+	</bean>
+	
+
+	<!-- 配置Action -->
+	<bean id="indexTopPicAction" class="com.yc.jixin.action.IndexTopPicAction" scope="prototype">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="indexTopPicDao" ref="indexTopPicDao"></property>
+		<property name="picSavePath" value="../dataInfo/pic"></property>
+	</bean>
+	<bean id="commentsAction" class="com.yc.jixin.action.CommentsAction">
+		<property name="commentsDao" ref="commentsDao"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+	</bean>
+	<bean id="jobInfoAction" class="com.yc.jixin.action.JobInfoAction" scope="prototype">
+		<property name="jobInfoDao" ref="jobInfoDao"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+	</bean>
+	<bean id="linksAction" class="com.yc.jixin.action.LinksAction" scope="prototype">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="linkDaoImpl" ref="linkDaoImpl"></property>
+	</bean>
+	<bean id="lostAction" class="com.yc.jixin.action.LostAction" scope="prototype">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="lostDaoImpl" ref="lostDaoImpl"></property>
+	</bean>
+	<bean id="loginAction" class="com.yc.jixin.action.LoginAction" scope="prototype">
+		<property name="adminDaoImpl" ref="adminDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+	</bean>
+	<bean id="trendsTypeAction" class="com.yc.jixin.action.TrendsTypeAction" scope="prototype">
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+	</bean>
+	<bean id="trendsAction" class="com.yc.jixin.action.TrendsAction" scope="prototype">
+		<property name="trendsDaoImpl" ref="trendsDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="picSavePath" value="../dataInfo/pic"></property>
+		<property name="fileSavePath" value="../dataInfo/file"></property>
+		<property name="videoSavePath" value="../dataInfo/video"></property>
+		<property name="fileDao" ref="filedao"></property>
+		<property name="videosDao" ref="videosDao"></property>
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="cacheUtil" ref="cacheUtil"></property>
+	</bean>
+	
+	<bean id="phoneInfoAction" class="com.yc.jixin.action.PhoneInfoAction" scope="prototype">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="phoneInfoDaoImpl" ref="phoneInfoDaoImpl"></property>
+	</bean>
+
+	<bean id="messagesAction" class="com.yc.jixin.action.MessagesAction" scope="prototype">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="messageDaoImpl" ref="messageDaoImpl"></property>
+	</bean>
+	
+	<bean id="filesAction" class="com.yc.jixin.action.FilesAction">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="fileDaoImpl" ref="filedao"></property>
+		<property name="fileSavePath" value="../dataInfo/file"></property>
+		<property name="trendsDaoImpl" ref="trendsDaoImpl"></property>
+	</bean>
+	
+	
+	<bean id="leadersAction" class="com.yc.jixin.action.LeadersAction" scope="prototype">
+		<property name="leaderDaoImpl" ref="leaderDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="savePath" value="../dataInfo/leader"></property>
+	</bean>
+	
+	<bean id="frontIndexAction" class="com.yc.jixin.action.FrontIndexAction" scope="prototype">
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="lostDaoImpl" ref="lostDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="fileDaoImpl" ref="filedao"></property>
+		<property name="jobInfoDaoImpl" ref="jobInfoDao"></property>
+		<property name="linkDaoImpl" ref="linkDaoImpl" ></property>
+		<property name="videosDaoImpl" ref="videosDao"></property>
+		<property name="indexTopPicDaoImpl" ref="indexTopPicDao"></property>
+		<property name="dormPublicDaoImpl" ref="dormPublicDao"></property>
+	</bean>
+	
+	<bean id="frontContenAction" class="com.yc.jixin.action.FrontContenAction" scope="prototype">
+		<property name="trendsDaoImpl" ref="trendsDaoImpl"></property>
+		<property name="fileDaoImpl" ref="filedao"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+	</bean>
+	
+	<bean id="frontJixinFilesAction" class="com.yc.jixin.action.FrontJixinFilesAction" scope="prototype">
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="lostDaoImpl" ref="lostDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="fileDaoImpl" ref="filedao"></property>
+	</bean>
+	
+	<bean id="frontJixinFindAction" class="com.yc.jixin.action.FrontJixinFindAction" scope="prototype">
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="trendsDaoImpl" ref="trendsDaoImpl"></property>
+		<property name="lostDaoImpl" ref="lostDaoImpl"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="fileDaoImpl" ref="filedao"></property>
+	</bean>
+	
+	<bean id="frontContactUsAction" class="com.yc.jixin.action.FrontContactUsAction">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="phoneInfoDaoImpl" ref="phoneInfoDaoImpl"></property>
+	</bean>
+	
+	<bean id="frontAcademyAction" class="com.yc.jixin.action.FrontAcademyAction">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="leaderDaoImpl" ref="leaderDaoImpl"></property>
+	</bean>
+	
+	<bean id="frontInitAction" class="com.yc.jixin.action.FrontInitAction">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="jobInfoDaoImpl" ref="jobInfoDao"></property>
+		<property name="leaderDaoImpl" ref="leaderDaoImpl"></property>
+		<property name="dormPublicDaoImpl" ref="dormPublicDao"></property>
+		<property name="dormNoticeDaoImpl" ref="dormNoticeDao"></property>
+	</bean>
+	
+	<bean id="frontJixinVideosAction" class="com.yc.jixin.action.FrontJixinVideosAction">
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="lostDaoImpl" ref="lostDaoImpl"></property>
+		<property name="trendsTypeDaoImpl" ref="trendsTypeDaoImpl"></property>
+		<property name="videosDaoImpl" ref="videosDao"></property>
+	</bean>
+	
+	
+	<bean id="dormNoticeAction" class="com.yc.jixin.action.DormNoticeAction" scope="prototype">
+		<property name="dormNoticeDaoImpl" ref="dormNoticeDao"></property>
+		<property name="jsonObject" ref="jsonObject"></property>
+		<property name="dormPublicDaoImpl" ref="dormPublicDao"></property>
+	</bean>
+	
+	<!-- 事务 -->
+	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	
+</beans>

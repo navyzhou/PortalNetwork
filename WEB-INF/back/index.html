@@ -1,0 +1,877 @@
+﻿<!doctype html>
+<html>
+  <head>
+    <title>计信门户后台管理</title>
+    <meta charset=UTF-8>
+	<link rel="shortcut icon" href="../front/images/bitbug.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="../easyui/themes/icon.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="../easyui/themes/bootstrap/easyui.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="../ckeditor/contents.css" type="text/css" media="screen"/>
+	<link rel="stylesheet" href="../flipclock/flipclock.css" type="text/css">
+  </head>
+  <style>
+  	table a{
+  		color:blue;
+  	}
+  	#mytop{
+  		background: url(../images/head.png) no-repeat left top;
+  		background-size: 100% 100%;
+  	}
+  	#showPicList img{
+  		width:100px;
+  		height:80px;
+  	}
+  	#welcomName{
+  		text-decoration: none;
+  		color:#000042;
+  		font-weight: bold;
+  	}
+  	#sayhi{
+  		color:#000042;
+  		font-size:16px;
+  	}
+  	#welcomName:hover{
+  		text-decoration:underline;
+  		color:#1F68CA;
+  	}
+  </style>
+  <body class="easyui-layout">
+	<div data-options="region:'north',split:true" style="height:110px;" id="mytop">
+		<div style="float:right;font-size: 20px; margin:15px;">
+			 <div>
+			 	<a href="javascript:openChangePwdDialog()" id="welcomName" title="点击修改密码"></a> <span id="sayhi"></span>
+			 	&nbsp;&nbsp;<a href="javascript:adminQuit()" class="easyui-linkbutton" data-options="iconCls:'icon-back'">退出</a>
+			 </div>
+		</div>
+     
+	</div>
+	<!-- 
+	<div data-options="region:'south',title:'South Title',split:true" style="height: 100px;"></div>
+	 -->
+	<div data-options="region:'east',title:'提示',split:true,collapsed:true" style="width: 200px;">
+		<p>
+			首页滚动新闻图片要求：
+			<br/><br/>
+			上传文件格式：<br/>图片：jpg,jpeg,png,gif;<br/>视频：mp4,swf;<br/>文件：doc,wps,xls,txt,zip,rar;
+		</p>
+	</div>
+	<div data-options="region:'west',title:'管理',split:true" style="width: 150px;">
+		<!-- navigator start  -->
+		<div id="dataTree" class="easyui-accordion" data-options="fit:true">
+			<div title="首页&动态管理" style="overflow: auto;" data-options="selected:true">
+				<ul id="tt1" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="学院信息">
+				<ul id="tt2" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="党群建设" >
+				<ul id="tt3" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="学科建设">
+				<ul id="tt4" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="团学工作">
+				<ul id="tt5" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="宿舍管理">
+				<ul id="tt6" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="奖评资助">
+				<ul id="tt7" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="学生园地">
+				<ul id="tt8" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="招生就业">
+				<ul id="tt9" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="联系我们">
+				<ul id="tt10" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="友情链接管理">
+				<ul id="tt11" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="失物招领管理">
+				<ul id="tt12" class="easyui-tree" data-options="animate:true,dnd:true">
+					
+				</ul>
+			</div>
+			<div title="管理员账户管理" style="display: none;">
+				<ul id="tt13" class="easyui-tree" data-options="animate:true,dnd:true">
+					<li><span href="javascript:openAdmin()">管理员账户</span></li>
+				</ul>
+			</div>
+		</div>
+
+		<!-- navigator end -->
+	</div>
+	<div data-options="region:'center',title:'操作',tools:[{
+			iconCls:'icon-full',
+			handler:function(){ full(); }
+		},{
+			iconCls:'icon-unfull',
+			handler:function(){ unfull(); }
+		}]" style="padding: 5px; background: #eee;">
+		<div  class ="easyui-tabs" data-options="fit:true" border ="false"  id ="tabs"> 
+       		<div  title ="首页" >
+       			
+       			 <div class="clock" style="padding-top:150px;padding-left:200px;"></div>
+       		</div > 
+     	</div > 	
+	</div>
+	
+	
+	
+	<!-- 这个层主要用来显示一些关闭按钮 -->
+	<div  id ="tabsMenu"  class ="easyui-menu"  style ="width:120px;" >   
+     <div  name ="close" >关闭 </div >   
+     <div  name ="Other" >关闭其他 </div >   
+     <div  name ="All" >关闭所有 </div > 
+   </div > 
+	
+	<div id="changePwdDialog" class="easyui-dialog" style="width:600px;height:200px;padding:10px 20px" closed="true" buttons="#changePwd-buttons">
+		<center>
+		<form id="addAddminInfo" method="post" enctype="multipart/form-data" style="margin-right: 30px;">
+			<table>
+				<tr>
+					<td>
+						<div class="fitem" style="margin-bottom: 10px;">
+							<label>
+								请输入原密码：
+							</label>
+							<input id="oldPwd" type="password" onblur="checkOldPwd()" class="easyui-textbox" required="true"><br/>
+						</div>	
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="fitem" style="margin-bottom: 10px;">
+							<label>
+								请输入新密码：
+							</label>
+							<input id="newPwd" type="password" onblur="checkNewPwdLength()" class="easyui-textbox" required="true">
+						</div>	
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div class="fitem" style="margin-bottom: 10px;">
+							<label>
+								请 再 次 输 入：
+							</label>
+							<input id="newPwdReput" type="password" onblur="checkOldPwd()" onkeyup="checkDown()" class="easyui-textbox" required="true">
+						</div>	
+					</td>
+				</tr>
+			</table>
+		</form>
+		</center>
+	</div>
+	<div id="changePwd-buttons" class="dialog-button">
+		<a id="changePwd-buttonsa" href="javascript:changePwd()" class="easyui-linkbutton c6" 
+			iconCls="icon-ok" style="width:90px;margin-right:180px">修改</a> 
+	</div>
+
+
+	<!-- 用来显示文件列表 -->
+	<div id="showFileList" class="easyui-dialog" style="width:400px;height:200px;padding:10px 20px" 
+		closed="true" buttons="#showFileList-buttons">
+		<span id="showfilename"></span>
+	</div>
+	<div id="showFileList-buttons" class="dialog-button">
+		<a id="showFileList-buttons" href="javascript:closeshowFileList()" class="easyui-linkbutton c6" 
+			iconCls="icon-ok" style="width:90px;margin-right:180px">确定</a>
+	</div>
+	
+	<div id="showPicList" class="easyui-dialog" style="width:600px;height:300px;padding:10px 20px" closed="true" >
+		<div id="showLookPics"></div>
+	</div>
+	
+	<div id="showPicLook" class="easyui-dialog" style="width:600px;height:300px;padding:10px 20px" closed="true" >
+		<div id="showLookPics"></div>
+	</div>
+</body>
+<script type="text/javascript" src="../js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="../easyui/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../easyui/jquery.edatagrid.js"></script>
+<script type="text/javascript" src="../js/ajaxfileupload.js"></script>	
+
+<script src="../js/showpic.js" type="text/javascript"></script>
+<script src="../ckeditor/ckeditor.js" type="text/javascript"></script>
+<script src="../ckeditor/config.js" type="text/javascript"></script>
+<script type="text/javascript" src="../flipclock/flipclock.js"></script>
+
+<script type="text/javascript">
+	var clock;
+	$(document).ready(function() {
+		var date = new Date();
+		var mydate = date.toLocaleString();
+		var time = date.getHours(); 
+		$('#changePwd-buttonsa').hide();			
+		clock = $('.clock').FlipClock(mydate, {
+			clockFace: 'TwelveHourClock'
+		});
+		$.post("../json/loginAction_getRecentAdmin",function(data){
+			data = $.trim(data);
+			if(data==null || data=="" || data =="null"){
+				alert("请登录！");
+				window.location.href = "../back/backlogin.html";
+			}else{
+				$.post("../json/loginAction_getRecentStatus",{'adminInfo.aname':data},function(data1){
+					data1 = parseInt($.trim(data1));
+					if(data1 == 1){
+						removeTreeItem();
+					}
+				});
+			
+				$("#adminName").html(data);
+				$("#welcomName").html(data);
+				if(time>=3 && time<8){
+					$("#sayhi").html("早上好！");
+				}else if(time>=8 && time<11){
+					$("#sayhi").html("上午好！");
+				}else if(time>=11 && time<13){
+					$("#sayhi").html("中午好！");
+				}else if(time>=13 && time<18){
+					$("#sayhi").html("下午好！");
+				}else if(time>=18 && time<23){
+					$("#sayhi").html("晚上好！");
+				}else if(time>=23 || time<3){
+					$("#sayhi").html("深夜好！");
+				}
+			}
+		});
+	});
+	
+	function look_Pic(pics){
+		$('#showPicList').dialog('open').dialog('setTitle', '图片列表');
+		var pic=pics.split(";");
+		var show="";
+		for(var i=0;i<pic.length;i++){
+			show+="<img src='../"+pic[i]+"' >&nbsp;&nbsp;&nbsp;&nbsp;";
+		}
+		$("#showLookPics").html(show);
+    }
+  
+	
+	function closeshowFileList(){
+		$('#showFileList').window('close');
+		$('#showfilename').html("");
+	}
+	function checkFileList(fileid){
+		$('#showFileList').dialog('open').dialog('setTitle', '文件列表');
+		$.post('../json/filesAction_checkFileNameByName',{'filesid':fileid},function(data){
+			if(data.rows!==null){
+				var filename = "";
+				$.each(data.rows,function(index,item){
+					filename+=item.file_savename+"<br/>";
+				});
+				$("#showfilename").html(filename);
+			}else{
+				alert("未找到对应文件，可能已被删除");
+			}
+		});
+	}
+	
+	function adminQuit(){
+		 $.messager.confirm("操作提示", "您确定要退出？", function (data) {
+            if (data) {
+                $.post("../json/loginAction_adminQuit");
+				window.location = "../back/backlogin.html";
+            }
+        });
+	}
+	
+	function openAdmin(){
+		Open('管理员账户','loginAction_backGoTo_admin');
+	}
+	
+	function removeTreeItem(){
+		 $("#dataTree").accordion('remove','管理员账户管理');
+	}
+	
+	function openChangePwdDialog(){
+		$('#changePwdDialog').dialog('open').dialog('setTitle', '修改账户密码');
+		$("#addAddminInfo").form('clear');
+	}
+	
+	var checkdata=false;
+	function checkOldPwd(){
+		var oldPwd = $.trim($("#oldPwd").val());
+		$.post("../json/loginAction_checkRecentPwd",{'adminInfo.apassword':oldPwd},function(data){
+			data = parseInt($.trim(data));
+			if(data != 0){
+				checkdata=false;
+				$.messager.alert('错误提示', '原密码错误，请重新输入', 'error');
+				$('#changePwd-buttonsa').hide();
+			}else{
+				checkdata=true;
+				//$('#changePwd-buttonsa').linkbutton('enable');
+				if(checkNewPwd() && checkNewPwdLength()){
+					$('#changePwd-buttonsa').show();
+					//$("#buttonTest").removeAttr("disabled");//启用按钮  
+				}else{
+					$('#changePwd-buttonsa').hide();
+					//$("#buttonTeat").attr({ "disabled": "disabled" });//禁用按钮 
+				}
+			}
+		});
+	}
+	
+	function checkDown(){
+		var oldPwd = $.trim($("#newPwd").val());
+		var newPwd = $.trim($("#newPwdReput").val());
+		if(newPwd==null || newPwd ==""){
+			return;
+		}
+		if(newPwd == oldPwd && checkdata){
+			$('#changePwd-buttonsa').show();
+		}else{
+			$('#changePwd-buttonsa').hide();
+		}
+	}
+	
+	function checkNewPwdLength(){
+		var pwd = $.trim($("#newPwd").val());
+		if(pwd.length<=0){
+			return;
+		}else if(pwd.length<6){
+			$.messager.alert('错误提示', '密码长度不能小于6位', 'error');
+			//$('#changePwd-buttonsa').linkbutton('disable');
+			return false;
+		}else{
+			//$('#changePwd-buttonsa').linkbutton('enable');
+			return true;
+		}
+	}
+	
+	function checkNewPwd(){
+		var pwd = $.trim($("#newPwd").val());
+		var pwd1 = $.trim($("#newPwdReput").val());
+		var oldPwd = $.trim($("#oldPwd").val());
+		
+		if(pwd==""){
+			return false;
+		}
+		if(oldPwd==pwd){
+			$.messager.alert('错误提示', '原密码与新密码相同！', 'error');
+			return false;
+		}
+		if(pwd ==pwd1){
+			return true;
+		}else{
+			$.messager.alert('错误提示', '两次输入不一致，请重新输入！', 'error');
+			return false;
+		}
+	}
+	
+	function changePwd(){
+		var oldPwd = $.trim($("#oldPwd").val());
+		var pwd = $.trim($("#newPwd").val());
+		var pwd1 = $.trim($("#newPwdReput").val());
+		if(oldPwd==pwd){
+			$.messager.alert('错误提示', '原密码与新密码相同！', 'error');
+			return;
+		}
+		if(oldPwd == null || oldPwd==""){
+			$.messager.alert('错误提示', '请输入原密码！', 'error');
+			return;
+		}
+		if(pwd == null || pwd==""){
+		$.messager.alert('错误提示', '请输入新密码！', 'error');
+			return;
+		}
+		if(pwd1 == null || pwd1==""){
+		$.messager.alert('错误提示', '请再次输入新密码！', 'error');
+			return;
+		}
+		var name = $("#welcomName").html();
+		var oldPwd = $.trim($("#oldPwd").val());
+		$.post("../json/loginAction_checkRecentPwd",{'adminInfo.apassword':oldPwd},function(data){
+			data = parseInt($.trim(data));
+			if(data != 0){
+				$.messager.alert('错误提示', '原密码错误，请重新输入', 'error');
+				$('#changePwd-buttonsa').linkbutton('disable');
+			}else{
+				$('#changePwd-buttonsa').linkbutton('enable');
+				$.post("../json/loginAction_updateAdminPwd",{'adminInfo.apassword':pwd,'adminInfo.aname':name},function(data){
+					if (data > 0) {
+						//关闭窗口
+						$('#changePwdDialog').window('close');
+						alert("密码修改成功！请重新登录");
+						$.post("../json/loginAction_adminQuit");
+						window.location = "../back/backlogin.html";
+					} else {
+						$.messager.alert('错误提示', '密码修改失败,请重试', 'error');
+					}
+				});
+			}
+		});
+		
+	}
+	
+	$(document).ready(function () {
+ 		//用户管理菜单数据
+ 		   var treeData1 = [
+ 		   /**
+ 		   { 
+                          text : "滚动新闻",
+                          attributes : { 
+                              url : "loginAction_backGoTo_rollingNews" 
+      					} 
+           },*/
+           { 
+                          text : "计信新闻",
+                          attributes : {
+                              url : "loginAction_backGoTo_jixinNews" 
+      					}
+           },{ 
+                          text : "通知公告",
+                          attributes : { 
+                              url : "loginAction_backGoTo_notice" 
+      					} 
+           },{ 
+                          text : "管理文件", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_files"
+      					} 
+           },{ 
+                          text : "首页顶部收起图片", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_indexTopPic"
+      					} 
+           }];
+          var treeData2 = [{ 
+                          text : "学院介绍", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_academyIntroduction" 
+      					} 
+ 			},{ 
+                          text : "机构设置", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_orginazition" 
+      					} 
+ 			},{ 
+                          text : "领导风采", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_leadersInfo" 
+      					} 
+ 			},{ 
+                          text : "师资队伍", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_teacherTeam" 
+      					} 
+ 			}]; 
+ 			 var treeData3 = [{ 
+                          text : "党总支概括",
+                          attributes : { 
+                              url : "loginAction_backGoTo_partySummarize" 
+      					} 
+           },{ 
+                          text : "党群公告",
+                          attributes : { 
+                              url : "loginAction_backGoTo_partyNotice" 
+      					} 
+           },{ 
+                          text : "党员风采",
+                          attributes : { 
+                              url : "loginAction_backGoTo_partyMember" 
+      					} 
+           },{ 
+                          text : "党员活动",
+                          attributes : { 
+                              url : "loginAction_backGoTo_partyActivity" 
+      					} 
+           },{ 
+                          text : "党支工会",
+                          attributes : { 
+                              url : "loginAction_backGoTo_partyUnion" 
+      					} 
+           },{ 
+                          text : "理论制度",
+                          attributes : { 
+                              url : "loginAction_backGoTo_partyRegime" 
+      					} 
+           }]; 
+ 			 var treeData4 = [{ 
+                          text : "专业介绍", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_professional" 
+      					} 
+ 			},{ 
+                          text : "学科成果",
+                          attributes : { 
+                              url : "loginAction_backGoTo_subjectAchievement" 
+      					} 
+           }];
+ 			var treeData5 = [{ 
+                          text : "班级风采",
+                          attributes : { 
+                              url : "loginAction_backGoTo_classActivity" 
+      					} 
+           },{ 
+                          text : "社团活动",
+                          attributes : { 
+                              url : "loginAction_backGoTo_associationActivity" 
+      					} 
+           },{ 
+                          text : "团学动态",
+                          attributes : { 
+                              url : "loginAction_backGoTo_unionActivity" 
+      					} 
+           }];
+ 			
+ 			var treeData6 = [{ 
+                          text : "宿舍通报",
+                          attributes : { 
+                              url : "loginAction_backGoTo_sushetongbao" 
+      					} 
+           },{ 
+                          text : "相关通知",
+                          attributes : { 
+                              url : "loginAction_backGoTo_susheinfo" 
+      					} 
+           },{ 
+                          text : "管理制度",
+                          attributes : { 
+                              url : "loginAction_backGoTo_sushejiangcheng" 
+      					} 
+           }
+           /*,{ 
+                          text : "添加文明寝室",
+                          attributes : { 
+                              url : "loginAction_backGoTo_addGoodDorm" 
+      					} 
+           },{ 
+                          text : "添加通报寝室",
+                          attributes : { 
+                              url : "loginAction_backGoTo_addBadDorm2" 
+      					} 
+           }*/];
+ 			
+ 			var treeData7 = [{ 
+                          text : "奖评公示",
+                          attributes : { 
+                              url : "loginAction_backGoTo_awardNotice" 
+      					} 
+           }];
+ 			
+ 			var treeData8 = [{ 
+                          text : "学子风采",
+                          attributes : { 
+                              url : "loginAction_backGoTo_studentStyle" 
+      					} 
+           },{ 
+                          text : "爱心基地",
+                          attributes : { 
+                              url : "loginAction_backGoTo_loveBase" 
+      					} 
+           },{ 
+                          text : "新生指南",
+                          attributes : { 
+                              url : "loginAction_backGoTo_newStudent" 
+      					} 
+           },{ 
+                          text : "学生指南",
+                          attributes : { 
+                              url : "loginAction_backGoTo_studentGuide" 
+      					} 
+           }
+           /**,{ 
+                          text : "科研指南",
+                          attributes : { 
+                              url : "loginAction_backGoTo_researchGuide" 
+      					} 
+           }*/
+           ];
+ 			
+ 			var treeData9 = [{ 
+                   text : "招贤纳士",
+                   attributes : { 
+                       url : "loginAction_backGoTo_jobInfo" 
+				} 
+ 			} ,{ 
+                   text : "生涯规划",
+                   attributes : { 
+                       url : "loginAction_backGoTo_jobPlan" 
+				} 
+ 			} ,{ 
+                   text : "就业指导",
+                  attributes : { 
+                       url : "loginAction_backGoTo_jobGuide" 
+				} 
+ 			} ,{ 
+                  text : "办事指南",
+                  attributes : { 
+                      url : "loginAction_backGoTo_officeGuide" 
+			} 
+ 			} ,{ 
+                  text : "就业政策",
+                  attributes : { 
+                      url : "loginAction_backGoTo_employmentPolicy" 
+			} 
+ 			} ,{ 
+                  text : "就业明星",
+                  attributes : { 
+                      url : "loginAction_backGoTo_jobStar" 
+			} 
+ 			}];
+ 			
+ 			var treeData10 = [{ 
+                          text : "联系电话", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_phoneInfo" 
+      					} 
+ 			},{ 
+                          text : "管理留言", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_messages" 
+      					} 
+ 			}
+ 			/*,{ 
+                          text : "管理评论", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_comments" 
+      					} 
+ 			}*/
+ 			];
+ 			
+ 			var treeData11 = [{ 
+                          text : "链接管理", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_links" 
+      					} 
+ 			}];
+ 			var treeData12 = [{ 
+                          text : "失物招领", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_lost" 
+      					} 
+ 			}];
+  			var treeData13 = [{ 
+                          text : "管理员账户", 
+                          attributes : { 
+                              url : "loginAction_backGoTo_admin" 
+      					} 
+ 			}];
+  			
+  			// 实例化树形菜单 
+    	$(".easyui-tree").tree({  	
+        	lines :  true,
+        	//绑定右键菜单
+        	onContextMenu: function (e, title) {
+                    e.preventDefault();
+                    $("#tabsMenu").menu('show', {
+                        left: e.pageX,
+                        top: e.pageY
+                    }).data("tabTitle", title.text);
+                },
+        	onClick :  function (node) { 
+             	if (node.attributes) { 
+                	Open(node.text, node.attributes.url); 
+            	} 
+        	} 
+	    }); 
+	     $("#tt1").tree({
+	    	data:treeData1
+	    });
+	    $("#tt2").tree({
+	    	data:treeData2
+	    });
+	     $("#tt3").tree({
+	    	data:treeData3
+	    });
+	    $("#tt4").tree({
+	    	data:treeData4
+	    });
+	    $("#tt5").tree({
+	    	data:treeData5
+	    });
+	    $("#tt6").tree({
+	    	data:treeData6
+	    });
+	    $("#tt7").tree({
+	    	data:treeData7
+	    });
+	    $("#tt8").tree({
+	    	data:treeData8
+	    });
+	    $("#tt9").tree({
+	    	data:treeData9
+	    });
+	    $("#tt10").tree({
+	    	data:treeData10
+	    });
+	    $("#tt11").tree({
+	    	data:treeData11
+	    });
+	     $("#tt12").tree({
+	    	data:treeData12
+	    });
+		    $("#tt13").tree({
+		    	data:treeData13
+		    });
+	     // 绑定tabs的右键菜单 
+	    $("#tabs").tabs({ 
+	        onContextMenu :  function (e, title) { 
+	            e.preventDefault(); 
+	            $('#tabsMenu').menu('show', { 
+	                left : e.pageX, 
+	                top : e.pageY 
+	            }).data("tabTitle", title); 
+	        } 
+	    }); 
+	    
+	    
+	    // 实例化右键快捷menu的onClick事件 
+	    $("#tabsMenu").menu({ 
+	        onClick :  function (item) { 
+	            CloseTab( this, item.name); 
+	        } 
+	    }); 
+    });
+    
+    
+    
+        
+     // 几个关闭事件的实现 ： 包括关闭，关闭所有，关闭其它
+     function CloseTab(menu, type) { 
+         var curTabTitle = $(menu).data("tabTitle"); 
+         var tabs = $("#tabs"); 
+         //如果类型为close, 则关闭自己
+         if (type === "close") { 
+            tabs.tabs("close", curTabTitle); 
+             return; 
+        } 
+        var allTabs = tabs.tabs("tabs"); 
+        var closeTabsTitle = []; 
+        //循环tabs中所有的tab
+        $.each(allTabs,  function () { 
+             var opt = $( this).panel("options"); 
+             //先判断是否是关闭其它，如果是，则将这个tab的标存存好好。
+             if (opt.closable && opt.title != curTabTitle && type === "Other") { 
+                closeTabsTitle.push(opt.title); 
+            }  else  if (opt.closable && type === "All") { 
+                closeTabsTitle.push(opt.title); 
+            } 
+        }); 
+         //循环关闭
+         for ( var i = 0; i < closeTabsTitle.length; i++) { 
+            tabs.tabs("close", closeTabsTitle[i]); 
+        } 
+    }    
+    
+  
+  
+  	// 在center区域打开菜单所指定的页面，新增tab 
+     function Open(text, url) { 
+         if ($("#tabs").tabs('exists', text)) { 
+            $('#tabs').tabs('select', text); 
+         }else { 
+            $('#tabs')	.tabs('add', { 
+                title : text, 
+                closable : true, 
+                href : url 
+            }); 
+        } 
+    } 
+    
+    
+	//取出文章中标签
+	function delTag(s){
+		var dd=s.replace(/<\/?.+?>/g,"");
+		return dds=dd.replace(/&nbsp;/g,"");
+	}
+	
+	//普通字符转换成符
+	function html2Escape(sHtml) {
+	 return sHtml.replace(/[<>&"]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c];});
+	}
+	
+	function htmlEscape(sHtml) {
+	 return sHtml.replace(/&lt;|&gt;|&amp;|&quot;/g,function(c){return {'&lt;':'<','&gt;':'>','&amp;':'&','&quot;':'"'}[c];});
+	}
+	
+	function progress(){
+		$.messager.progress({
+			title:'请稍候',
+			msg:'文件正在上传...',
+			text:'正在上传...'
+		});
+	}
+	$.extend($.fn.datagrid.methods, {  
+	addToolbarItem: function(jq, items){  
+		return jq.each(function(){  
+			var toolbar = $(this).parent().prev("div.datagrid-toolbar");
+			for(var i = 0;i<items.length;i++){
+				var item = items[i];
+				if(item === "-"){
+					toolbar.append('<div class="datagrid-btn-separator"></div>');
+				}else{
+					var btn=$("<a href=\"javascript:void(0)\"></a>");
+					btn[0].onclick=eval(item.handler||function(){});
+					btn.css("float","left").appendTo(toolbar).linkbutton($.extend({},item,{plain:true}));
+				}
+			}
+			toolbar = null;
+		});  
+	},
+	removeToolbarItem: function(jq, param){  
+		return jq.each(function(){  
+			var btns = $(this).parent().prev("div.datagrid-toolbar").children("a");
+			var cbtn = null;
+			if(typeof param == "number"){
+				cbtn = btns.eq(param);
+			}else if(typeof param == "string"){
+				var text = null;
+				btns.each(function(){
+					text = $(this).data().linkbutton.options.text;
+					if(text == param){
+						cbtn = $(this);
+						text = null;
+						return;
+					}
+				});
+			} 
+			if(cbtn){
+				var prev = cbtn.prev()[0];
+				var next = cbtn.next()[0];
+				if(prev && next && prev.nodeName == "DIV" && prev.nodeName == next.nodeName){
+					$(prev).remove();
+				}else if(next && next.nodeName == "DIV"){
+					$(next).remove();
+				}else if(prev && prev.nodeName == "DIV"){
+					$(prev).remove();
+				}
+				cbtn.remove();	
+				cbtn= null;
+			}						
+		});  
+	} 				
+});
+</script>
+</html>

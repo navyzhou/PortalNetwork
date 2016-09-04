@@ -1,0 +1,201 @@
+﻿<table id="indexTopPic"> </table>
+
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+<div id="indexTopPicdialog" class="easyui-dialog" style="width:800px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#dlg-buttons">
+	<form id="indexTopPicUploadForm" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<br/>
+					<div class="fitem">
+						<label>选择图片:</label>
+						<input type="file" id="indexTopPic_pic" name="tr_file" class="easyui-textbox" accept="image/gif,image/jpeg,image/png" required="true"><br/><br/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>文字:</label>
+						<textarea style="width:400px;height:200px"  id="indexTopPic_word"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:changeIndexTopPic()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:70px;margin-right:200px">发布</a> 
+</div>
+
+<script type="text/javascript">
+	CKEDITOR.replace( 'indexTopPic_word');
+
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#indexTopPic").edatagrid({
+			url : "../json/indexTopPicAction_getIndexTopPic",//查询时加载的URL
+			destroyUrl:'../json/indexTopPicAction_delIndexTopPic',//删除时的URL
+			idField : "indexTopPic_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 10,//分页大小
+			pageList : [ 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-search",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "管理首页顶部收起图片",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'indexTopPic_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'asc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+			{
+				field : 'indexTopPic_id',
+				title : '编号',
+				width : 100,
+				align:'center',
+				checkbox:true
+			}, {
+				field : 'indexTopPic_names',
+				title : '图片',
+				align:'center',
+				width : 100,
+			}, {
+				field : 'indexTopPic_word',
+				title : '文字',
+				align:'center',
+				width : 100,
+			} 
+			] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					openIndexTopPicDialog();
+				}
+			},  '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#indexTopPic').edatagrid('destroyRow');
+					//delIndexTopPic();
+				}
+			} ]
+		});
+	})
+	
+	
+	function  delIndexTopPic(){
+		var rows = $("#indexTopPic").datagrid("getChecked");
+		var id = rows[0].indexTopPic_id;
+		$.post("../json/indexTopPicAction_delIndexTopPic",{'id':id},function(data){
+			
+		})
+	}
+	
+	
+	
+	//打开上传图片对话框
+	function openIndexTopPicDialog(){
+		$("#indexTopPicdialog").dialog('open').dialog('setTitle', '发布首页顶部收起通知');
+	}
+	
+	//上传图片
+	function changeIndexTopPic(){
+		var word = CKEDITOR.instances.indexTopPic_word.getData();
+		if($("#indexTopPic_pic").val() == "" && word == ""){
+			$.messager.alert('错误提示','图片和文字不能同时为空！','error');
+			return;
+		}
+		
+		if($("#indexTopPic_pic").val() != ""){
+			progress();
+			$.ajaxFileUpload({
+				url:'../json/indexTopPicAction_uploadPic',
+				data:{"itp.indexTopPic_word":word},
+				secureuri:false,
+				dataType:"json",
+				fileElementId:['indexTopPic_pic'],	//图片选择栏id
+				success:function(data){
+					$.messager.progress('close');//关闭进度条
+					data = parseInt($.trim(data));
+					if(data!=0){
+						$.messager.show({
+							title:'成功提示',
+							msg:'图片上传成功！',
+							timeout:2000,
+							showType:'slide'
+						});
+						
+						//关闭对话框
+						$("#indexTopPicdialog").dialog('close');
+						
+						//清空表单
+						$("#indexTopPicUploadForm").form('clear');
+						
+						//刷新数据
+						$("#indexTopPic").datagrid('load',{});
+					}else{
+						$.messager.alert('错误提示','图片上传失败,请重新选择','error');
+					}
+				},
+				error:function(data,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert('错误提示','图片上传失败','error');
+				}
+			});
+		}else{
+			$.post("../json/indexTopPicAction_uploadWithoutPic",{"itp.indexTopPic_word":word},function(data){
+				data = $.trim(data);
+				if(data>0){
+					$.messager.show({
+						title:'成功提示',
+						msg:'发布成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+					
+					//关闭对话框
+					$("#indexTopPicdialog").dialog('close');
+					
+					//清空表单
+					$("#indexTopPicUploadForm").form('clear');
+					
+					//刷新数据
+					$("#indexTopPic").datagrid('load',{});
+				}else{
+					$.messager.alert('错误提示','发布失败...','error');
+				}
+			});
+		}
+	}
+</script>

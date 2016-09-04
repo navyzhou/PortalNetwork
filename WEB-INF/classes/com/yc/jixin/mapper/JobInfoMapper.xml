@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据id 查，若为空查所有 -->
+	<select id="getJobInfos" resultType="JobInfo" parameterType="JobInfo">
+		select job_id,job_com,job_post,job_place,job_intro,job_time from jobInfo
+		<where>
+			<if test="job_id != null">
+				job_id = #{job_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询总条数 -->
+	<select id="getJobInfoTotal" resultType="int">
+		select count(*) from jobInfo
+	</select>
+	
+	<!-- 分页查询 -->
+	<select id="getByPageJobInfos" parameterType="PageParams" resultType="JobInfo">
+		<choose>
+		<!--  -->
+			<when test="pid!=null and pageNo!=null and pageNum!=null">
+				select job_id,job_com,job_time from(
+					select job_id,job_com,job_time,rownum rn from (
+						select job_id,job_com,to_char(job_time,'yyyy-mm-dd') as job_time from jobInfo order by job_id desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<when test="pageNo!=null and pageNum!=null">
+				select job_id,job_com,job_post,job_place,job_intro,job_time from(
+					select job_id,job_com,job_post,job_place,job_intro,job_time,rownum rn from (
+						select job_id,job_com,job_post,job_place,job_intro,job_time from jobInfo order by job_id desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<when test="pid!=null and pageNo==null and pageNum==null">
+				select job_id,job_com,to_char(job_time,'yyyy-mm-dd') as job_time from jobInfo order by job_id desc
+			</when>
+			<otherwise>
+				select job_id,job_com,job_post,job_place,job_intro,job_time from jobInfo order by job_id desc
+			</otherwise>
+		</choose>
+	</select>
+	<!-- 根据id查 -->
+	<select id="getJobInfoById" parameterType="Integer" resultType="JobInfo">
+		select * from jobInfo where job_id = #{_parameter}
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addJobInfo" parameterType="JobInfo">
+		insert into jobinfo values(seq_jobinfo.nextval,#{job_com},#{job_post},#{job_place},#{job_intro},sysdate,null,null)
+	</insert>
+	
+	<!-- 删除文件 -->
+	<delete id="delJobInfo" parameterType="Integer">
+		delete from jobInfo where job_id = #{_parameter}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="updateJobInfo" parameterType="JobInfo">
+		update jobInfo 
+		<set>
+			job_com = #{job_com},job_post = #{job_post},job_place=#{job_place},job_intro = #{job_intro},job_time =sysdate
+		</set>
+		where job_id = #{job_id}
+	</update>
+	
+	<!-- 模糊查找 -->
+	<select id="findJobInfByMap" parameterType="Map" resultType="JobInfo">
+	select job_id,job_com,job_post,job_place,job_intro,job_time from(
+		select job_id,job_com,job_post,job_place,job_intro,job_time,rownum rn from jobInfo
+		<where>
+		     <if test="_parameter.containsKey('job_com')">  
+        		and job_com like CONCAT(CONCAT('%',#{job_com} ),'%')
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('job_post')">  
+        		and job_post like CONCAT(CONCAT('%',#{job_post} ),'%')  
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('job_place')">  
+        		and job_place like CONCAT(CONCAT('%',#{job_place} ),'%') 
+    		</if>
+    		 <if test="_parameter.containsKey('job_time')">  
+        		AND job_time like to_date(#{job_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		 
+    		<if test="_parameter.containsKey('max')">  
+        		AND	rownum &lt;=#{max} order by job_id desc) 
+    		</if>
+    		
+		</where>
+		<if test="_parameter.containsKey('min')">  
+        		where rn>#{min} 
+    	</if>
+	</select>
+	
+	<!-- 查找总数 -->
+	<select id="findJobInfByMapCount" parameterType="Map" resultType="int">
+		select count(*) from jobInfo
+		<where>
+		     <if test="_parameter.containsKey('job_com')">  
+        		and job_com like CONCAT(CONCAT('%',#{job_com} ),'%')
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('job_post')">  
+        		and job_post like CONCAT(CONCAT('%',#{job_post} ),'%')  
+    		</if>
+    		
+    		 <if test="_parameter.containsKey('job_place')">  
+        		and job_place like CONCAT(CONCAT('%',#{job_place} ),'%') 
+    		</if>
+    		 <if test="_parameter.containsKey('job_time')">  
+        		AND job_time like to_date(#{job_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		
+		</where>
+		
+	</select>
+</mapper>

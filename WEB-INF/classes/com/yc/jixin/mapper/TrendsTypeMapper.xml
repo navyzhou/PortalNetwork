@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!--  -->
+	<select id="getAllTrendsType" parameterType="com.yc.jixin.beans.Trends" resultType="com.yc.jixin.beans.TrendsType">
+		select ttype_id,ttype_name from trends_type
+	</select>
+	
+	<!-- 分页查询 查出标题 -->
+	<select id="getByPageTrendsType" parameterType="com.yc.jixin.beans.PageParams" resultType="com.yc.jixin.beans.Trends">
+		<choose>
+		<!-- 根据类别分页查找 -->
+			<when test="pid!=null and pageNo!=null and pageNum!=null">
+				select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,temp1,temp2 from(
+					select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,temp1,temp2,rownum rn from (
+						select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends where types_id=#{pid} order by tr_time
+						desc ) where rownum &lt;=#{max}) where rn>#{min}
+			</when>	
+			<!-- 所有类别分页查询 -->
+			<when test="pageNo!=null and pageNum!=null">
+				select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,temp1,temp2 from(
+					select tr_id,types_id,tr_title,tr_time,tr_pic,tr_file,tr_video,rownum rn,temp1,temp2 from (
+						select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends order by tr_time  desc ) where rownum &lt;=#{max}) where rn>#{min} 
+			</when>
+			<when test="pid!=null and pageNo==null and pageNum==null">
+				select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends where types_id=#{pid} order by tr_id desc 
+			</when>
+			<otherwise>
+				select tr_id,types_id,tr_title,tr_pic,tr_file,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,temp1,temp2 from trends order by tr_time desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 分页查询 查出图片和内容 -->
+	<select id="getByPageTrendsTypePic" parameterType="com.yc.jixin.beans.PageParams" resultType="com.yc.jixin.beans.Trends">
+		<choose>
+			<when test="pid!=null and pageNo!=null and pageNum!=null">
+				select tr_author,tr_from,tr_id,types_id,tr_title,tr_time,tr_pic,tr_article,tr_video,temp1,temp2 from(
+					select tr_author,tr_from,tr_id,types_id,tr_title,tr_time,tr_pic,tr_article,tr_video,rownum rn,temp1,temp2 from (
+						select tr_author,tr_from,tr_id,types_id,tr_title,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,tr_pic,tr_article,temp1,temp2 from trends where types_id=#{pid} order by tr_time 
+						<choose>
+							<when test="sortOrder != null">  
+			            		asc  
+			        		</when>  
+							<otherwise>  
+							  desc 
+							</otherwise> 
+						</choose>
+						) where rownum &lt;=#{max}) where rn>#{min} 
+			</when>	
+			<when test="pageNo!=null and pageNum!=null">
+				select tr_author,tr_from,tr_id,types_id,tr_title,tr_timem,tr_pic,tr_article,tr_video,temp1,temp2 from(
+					select tr_author,tr_from,tr_id,types_id,tr_title,tr_time,tr_pic,tr_article,tr_video,rownum rn,temp1,temp2 from (
+						select tr_author,tr_from,tr_id,types_id,tr_title,tr_video,to_char(tr_time,'yyyy-mm-dd') as tr_time,tr_pic,tr_article,temp1,temp2 from trends order by tr_time 
+						<choose>
+							<when test="sortOrder != null">  
+			            		asc  
+			        		</when>  
+							<otherwise>  
+							  desc 
+							</otherwise> 
+						</choose>
+						) where rownum &lt;=#{max}) where rn>#{min} 
+			</when>
+			<otherwise>
+				select tr_author,tr_from,tr_id,types_id,tr_title,tr_time,tr_video,temp1,temp2 from trends_type
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addTrendsType" parameterType="com.yc.jixin.beans.TrendsType">
+		insert into trends_type values(#{ttype_id},#{ttype_name},'','')
+	</insert>
+	
+	<!-- 删除 -->
+	<delete id="delTrendsType" parameterType="int">
+		delete from trends_type where ttype_id=#{_parameter}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="updateTrendsType" parameterType="com.yc.jixin.beans.TrendsType">
+		update  trends_type
+		<set>
+			<if test="ttype_name!=null">
+				ttype_name=#{ttype_name},
+			</if>
+		</set>
+		<where>
+			ttype_id=#{ttype_id}
+		</where>
+	</update>
+	
+	<!-- 查询总数 -->
+	<select id="getTrendsTypeTotal" resultType="int" parameterType="int">
+		<choose>
+			<when test="_parameter!=null">
+				select count(*) from trends where types_id=#{_parameter}
+			</when>
+			<otherwise>
+				select count(*) from trends
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findTrendByid" parameterType="int" resultType="com.yc.jixin.beans.Trends">
+		
+	  select video_name as temp1, ttt.file_name,tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click  from( 
+			select ttype_name as file_name,tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,tr_time,tr_click from (
+				select ttype_name,tr_id,types_id,tr_title,tr_author,tr_from,tr_article,tr_pic,tr_video,tr_file,to_char(tr_time,'yyyy-mm-dd') as tr_time,tr_click from
+				  trends tt,trends_type ty where tt.types_id=ty.ttype_id and tt.tr_id=#{_parameter})) ttt left join videos v on ttt.tr_video=v.video_id
+	  
+	</select>
+	
+	<select id="findTrends" parameterType="list" resultType="com.yc.jixin.beans.Trends">
+		<foreach collection="list" item="item" separator="UNION ALL">
+			select tr_author,tr_from,tr_id,types_id,tr_title,tr_time,tr_pic,tr_video,tr_article,temp1,temp2 from(
+					select tr_author,tr_from,tr_id,types_id,tr_title,tr_time,tr_pic,tr_video,tr_article,rownum rn,temp1,temp2 from (
+						select tr_author,tr_from,tr_id,types_id,tr_title,tr_video,dbms_lob.substr(tr_article,400) as tr_article,to_char(tr_time,'yyyy-mm-dd') as tr_time,tr_pic,temp1,temp2 from trends where types_id=#{item.tyid} order by tr_time 
+						<choose>
+							<when test="item.sortOrder != null">  
+	            				asc  
+	        				</when>  
+					        <otherwise>  
+					            desc 
+					        </otherwise> 
+						</choose>
+						) where rownum &lt;=#{item.max}) where rn>#{item.min} 
+		</foreach>
+	</select>
+
+</mapper>

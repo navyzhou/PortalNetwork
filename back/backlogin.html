@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>计信门户后台登陆</title>
+		<link rel="stylesheet" href="../css/style.css">
+		<link rel="shortcut icon" href="../front/images/bitbug.ico" type="image/x-icon" />
+		<style type="text/css">
+		body {
+			  background-image: url(../images/background.jpg);
+ 			  background-position: 0px 0px;
+			}
+			.form-div{
+				margin-top:110px;
+			}
+			#code{
+				width:135px;
+			}
+		#top{
+			color:#039;
+			font-size:25px;
+			text-align:center;
+		}
+		#myresult{
+			color:red;
+			font-size:20px;
+			text-align:center;
+		}
+		</style>
+	</head>
+	<body>
+		<div id="Layer1" style="position:absolute; width:100%; height:100%; z-index:-1">    
+		</div>  
+		<br>
+			<div class="form-div">
+				<form action="" method="post" id="login-form" >
+					<table>
+						<tr><td colspan="2"><p id="top">计信门户后台登陆</p></td></tr>
+						<tr>
+							<td>
+								用户名
+							</td>
+							<td>
+								<input name="admin.aname" type="text" id="uid" easyform="length:2-6;char-chinese;real-time;" message="用户名错误" easytip="disappear:lost-focus;theme:blue;">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								密码
+							</td>
+							<td>
+								<input name="admin.apassword" type="password" id="psw1" easyform="length:6-16;" message="密码必须为6—16位" easytip="disappear:lost-focus;theme:blue;">
+							</td>
+						</tr>
+						<tr>
+							<td>
+								验证码
+							</td>
+							<td>
+								<input name="code" type="text" id="code">
+								 <img id="showcode" src="code.jsp" />
+								<a href="javascript:showCodeAgain()">看不清</a>
+							</td>
+						</tr>
+						<tr><td id="myresult" colspan="2"></td></tr>
+					</table>
+
+					<div class="buttons">
+						<input value="登录" type="button" onclick="persubmit()" style="margin-right: 20px; margin-top: 20px;"/>
+						<input value="重置" type="reset" style="margin-right: 45px; margin-top: 20px;"/>
+					</div>
+					<br class="clear"/>
+				</form>
+			</div>
+
+</body>
+<script type="text/javascript" src="../js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="../js/easyform.js"></script>
+<script type="text/javascript" src="autoBackgroundScroll.js"></script>
+<script type="text/javascript">
+	$(document).ready(function() {
+		$(window).keydown(function (event){
+			if(event.keyCode==13){
+				persubmit();
+			}
+		});
+	
+		$('#login-form').easyform();
+		$('#uid').focus();
+		var Sys = {};
+    	var ua = navigator.userAgent.toLowerCase();
+    	if (window.ActiveXObject){
+	        Sys.ie = ua.match(/msie ([\d.]+)/)[1];
+	        if (Sys.ie<=8){
+		        alert('你目前的IE版本为'+Sys.ie+'版本太低，请升级！');
+		       // location.href="http://windows.microsoft.com/zh-CN/internet-explorer/downloads/ie";
+	        }
+    	}	
+    	
+    	$('body').autoBackgroundScroll({
+	        speed: 0.3,
+	        direction1: 'bottom',
+	        direction2: 'right',
+	        imageWidth: 2000,
+	        imageHeight: 2000
+	     });
+	});
+	
+	function showCodeAgain(){
+		var r=new Date();
+		var img=document.getElementById("showcode");
+		img.src="code.jsp?d="+r;
+	}
+	
+	function persubmit(){
+		var uid = $.trim($("#uid").val());
+		var pwd = $.trim($("#psw1").val());
+		var code =$.trim( $("#code").val());
+		if(uid==""){
+			$("#uid").attr("message","用户名不能为空");
+			return;
+		}
+		if(pwd==""){
+			alert("密码不能为空");
+			return;
+		}
+		if(code==""){
+			alert("验证码不能为空");
+			$("#code").attr("message","用户名不能为空");
+			return;
+		}
+		$.post("../json/loginAction_backLogin",{'admin.aname':uid,'admin.apassword':pwd,'code':code},function(data){
+			data = $.trim(data);
+			if(data == 1){
+				window.location = "../yc/loginAction_backGoTo_index";
+			}else if (data == 2){
+				//alert("验证码错误，请重新输入！");
+				$("#myresult").html("验证码错误，请重新输入！");
+				showCodeAgain();
+			}else if(data == 3){
+				//alert("不能多次登录");
+			}else{
+				$("#myresult").html("账号或密码错误，请重新输入！");
+				showCodeAgain();
+				//alert("账号或密码错误，请重新输入！");
+			}
+		});
+	}
+</script>
+
+</html>

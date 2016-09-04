@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据编号或链接名或链接地址查询 -->
+	<select id="getAllLinks" parameterType="Links" resultType="Links">
+		select link_id,link_name,link_address from links
+		<where>
+			<if test="link_id!=null">
+				link_id=#{link_id}
+			</if>
+			<if test="link_name!=null">
+				link_name=#{link_name}
+			</if>
+			<if test="link_address!=null">
+				link_address=#{link_address}
+			</if>
+		</where>
+	</select>
+
+	<!-- 分页查询 -->
+	<select id="getByPageLinks" parameterType="PageParams" resultType="Links">
+		<choose>
+			<when test="pageNo!=null and pageNum!=null">
+				select link_id,link_name,link_address,rn from (
+					select link_id,link_name,link_address, rownum rn from (
+						select l.link_id,l.link_name,l.link_address from links l order by  l.link_id desc)
+							where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select link_id,link_name,link_address from links
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--添加链接  -->
+	<insert id="addLinks" parameterType="Links">
+		insert into links values(seq_link_id.nextval,#{link_name},#{link_address},null,null)
+	</insert>
+	
+	<!-- 修改链接 -->
+	<update id="updateLinks" parameterType="Links">
+		update links
+		<set>
+			<if test="link_name!=null">
+				link_name=#{link_name},
+			</if>
+			<if test="link_address!=null">
+				link_address=#{link_address},
+			</if>
+		</set>
+		where link_id=#{link_id}
+	</update>
+	
+	<!-- 多条删除链接 -->
+	<delete id="delLinks" parameterType="int">
+		delete from links where link_id=#{_parameter}
+	</delete>
+	
+	<!-- 查询链接总数 -->
+	<select id="getLinksTotal" resultType="int">
+		select count(*) from links
+	</select>
+</mapper>

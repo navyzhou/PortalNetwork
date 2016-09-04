@@ -1,0 +1,251 @@
+﻿<style type="text/css"> 
+#fm { 
+	margin: 0; 
+	padding: 10px 30px; 
+} 
+ 
+.ftitle { 
+	font-size: 14px; 
+	font-weight: bold; 
+	padding: 5px 0; 
+	margin-bottom: 10px; 
+	border-bottom: 1px solid #ccc; 
+} 
+ 
+.fitem { 
+	margin-bottom: 5px; 
+} 
+ 
+.fitem label { 
+	display: inline-block; 
+	width: 80px; 
+} 
+ 
+.fitem input { 
+	width: 160px; 
+} 
+
+.showAddPic{
+	opacity:0;
+	z-index: 20;
+	margin-left: 200px;
+	margin-top: -40px;
+	position: absolute;
+}
+</style> 
+ 
+ 
+<div id="professionalDialog" style="width:1000px;height:600px;padding:10px 20px" closed="true" buttons="#dlg-buttons">
+	<div class="ftitle">添加专业</div>
+	<form id="professionalfm" method="post" enctype="multipart/form-data">
+		<table style="width:1000px;">
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>专业名称:</label> <input id="apf_title" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="apf_picDiv" onmouseover="apf_showPic()" onmouseout="apf_movePic()">
+						图片:<input type="file" name="tr_files" id="apf_pic" accept="image/gif,image/jpeg,image/png" onchange="previewMultipleImage(this,'showPicLook')" multiple="true"/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>作者:</label> <input id="apf_author" class="easyui-textbox">
+					</div>
+				</td>
+				<td>
+					<div class="fitem">
+						视频:<input type="file" name="tr_files" id="apf_video" accept="audio/mp4,video/mp4,MPEG-4 Audio/Video"/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>来源:</label> <input id="apf_from" class="easyui-textbox" required="true" value="计信学院">
+					</div>
+				</td>
+				<td>
+					<div class="fitem">
+						文件:<input type="file" name="tr_files" id="apf_file" accept="application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip"  multiple="true"/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>时间:</label><input id="apf_time" class="easyui-textbox" required="true"/><span>&nbsp;&nbsp;(如：2015/01/01)</span>
+					</div>
+				</td>
+				<td>
+					<div class="fitem" style="inline">
+						<label>是否对外公开:</label> 
+						<select id="apf_temp2">
+							<option selected="selected">公开</option>
+							<option>不公开</option>
+						</select>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:400px;resize:none"  id="apf_article"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:addProfessional()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">发布</a> 
+</div>
+
+<script>
+	CKEDITOR.replace( 'apf_article', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+	CKEDITOR.editorConfig = function( config ){
+	    // Define changes to default configuration here. For example:
+	    config.language = 'zh-cn';
+	    config.uiColor = '#AADC6E';
+	    config.resize_enabled = false;
+	};
+
+</script>
+
+
+<script type="text/javascript">
+	$(function(){
+		$("#apf_author").val($("#welcomName").html());
+		var nian = new Date().getFullYear();
+		var yue = new Date().getMonth()+1;
+		var ri = new Date().getDate();
+		$("#apf_time").val(nian+"/"+yue+"/"+ri);
+	});
+	function addProfessional(){
+		var title =html2Escape( $("#apf_title").val());
+		var author =html2Escape( $("#apf_author").val());
+		var from =html2Escape( $("#apf_from").val());
+		var article = CKEDITOR.instances.apf_article.getData();
+		var time = $("#apf_time").val();
+		var temp2 = $.trim($("#apf_temp2").find("option:selected").text());
+		if(time.length!=0){    
+	        var reg = /^(\d{1,4})(-|\/)(\d{1,2})\2(\d{1,2})$/;     
+	        var r = time.match(reg);     
+	        if(r==null){   
+	            $.messager.alert('错误提示','对不起，您输入的日期格式不正确!','error');//请将“日期”改成你需要验证的属性名称!
+	            return;   
+	         } 
+        }else{
+        	$.messager.alert('错误提示','日期不能为空','error');
+        	return;   
+        }   
+		if($.trim(title)==''){
+			$.messager.alert('错误提示','标题不能为空','error');
+			return;
+		}
+		
+		if($.trim(author)==''){
+			$.messager.alert('错误提示','作者不能为空','error');
+			return;
+		}
+		
+		if($.trim(from)==''){
+			$.messager.alert('错误提示','来源不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(article))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		if($("#apf_pic").val()=="" && $("#apf_video").val()=="" && $("#apf_file").val()==""){
+			$.post("../json/trendsAction_addTrends",{
+			'trends.tr_title':title,
+			'trends.tr_author':author,
+			'trends.tr_from':from,
+			'trends.tr_article':article,
+			'trends.types_id':10010,
+			'trends.tr_pic':'',
+			'trends.tr_file':'',
+			'trends.tr_time':time,'trends.temp2':temp2
+			},function(data){
+				data = parseInt($.trim(data));
+				if(data>0){
+					$.messager.show({
+						title:'成功提示',
+						msg:'添加专业成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+					//关闭选项卡
+					$('#tabs').tabs('close','添加专业'); 
+					
+					//刷新数据
+					$("#professional").datagrid('load',{"trends.types_id":10010});
+				}else{
+					$.messager.alert('错误提示','公告发布失败,请重试','error');
+				}
+			});
+		}else{
+			progress();//显示进度条
+			$.ajaxFileUpload({
+				url:'../json/trendsAction_uploadFiles',
+				secureuri:false,
+				dataType:'json',
+				data:{'trends.types_id':10010,'trends.tr_title':title,'trends.tr_author':author,'trends.tr_from':from,'trends.tr_article':article,'trends.tr_pic':'','trends.tr_file':'','trends.tr_time':time,'trends.temp2':temp2},
+				fileElementId:['apf_pic','apf_video','apf_file'],	//图片文本框id
+				success:function(data){
+					$.messager.progress('close');//关闭进度条
+					data = parseInt($.trim(data));
+					if(data>=0){
+						$.messager.show({
+							title:'成功提示',
+							msg:'文件上传成功！',
+							timeout:2000,
+							showType:'slide'
+						});
+						//关闭选项卡
+						$('#tabs').tabs('close','添加专业'); 
+						
+						//刷新数据
+						$("#professional").datagrid('load',{"trends.types_id":10010});
+					}else{
+						$.messager.alert('错误提示','文件上传失败,请选择规定格式的文件','error');
+					}
+				},
+				error:function(data,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert('错误提示','发布失败，请检查网络...','error');
+				}
+			});
+		}
+	}
+	function apf_showPic(){
+		var imgsrc=$("#apf_previewImg").attr('src');	
+		if(imgsrc!=null && imgsrc!=''){
+			$("#apf_showPic").css("opacity",1);
+		}
+		
+	}
+	function apf_movePic(){
+		$("#apf_showPic").css("opacity",0);
+	}
+	
+</script>

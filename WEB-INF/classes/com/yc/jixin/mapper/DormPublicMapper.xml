@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据id 查，若为空查所有 -->
+	
+	
+	<!-- 根据周次查数据条数 -->
+	<select id="getCountByWeek" parameterType="java.lang.String" resultType="Integer">
+		select count(*) from dorm_public where public_week=#{public_week}
+	</select>
+	
+	<!-- 分页查找 -->
+	<select id="getDormPublicByPage" resultType="DormPublic" parameterType="pageParams">
+		<choose>
+			<when test="pid!=null and pageNo!=null and pageNum!=null">
+					select public_id,public_week,public_notice from(
+				select public_id,public_week,public_notice,rownum rn from (
+					select public_id,public_week,public_notice from dorm_public order by public_id desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select public_id,public_week,public_notice from dorm_public order by public_id desc
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查通报公告总条数 -->
+	<select id="getDormPublicTotal" resultType="Integer">
+		select count(*) from dorm_public
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addDormPublic" parameterType="DormPublic">
+		insert into dorm_public values(#{public_id},#{public_week},#{public_notice},null,null)
+	</insert>
+	<!-- 删除 -->
+	<delete id="delDormPublic" parameterType="Long">
+		delete from dorm_public where public_id = #{public_id}
+	</delete>
+	
+	
+	<!-- 修改 -->
+	<update id="updateDormPublic" parameterType="DormPublic">
+		update dorm_public
+		<set>
+			public_notice = #{public_notice},
+		</set>
+		where public_id = #{public_id}
+	</update>
+	
+	<!-- 模糊查询 -->
+	<select id="findByMapDP" parameterType="Map" resultType="DormPublic">
+	select public_id,public_week,public_notice from(
+		select public_id,public_week,public_notice ,rownum rn from dorm_public
+		<where>
+			 <if test="_parameter.containsKey('public_week')"> 
+        		and public_week like CONCAT(CONCAT('%',#{public_week,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('public_notice')"> 
+        		and public_notice like CONCAT(CONCAT('%',#{public_notice,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('max')">  
+        		AND	rownum &lt;=#{max} order by public_id desc) 
+    		</if>
+    		
+		</where>
+		<if test="_parameter.containsKey('min')">  
+        		where rn>#{min} 
+    	</if>
+    </select>
+    
+    <!-- 模糊查询总数 -->
+    <select id="findByMapDPCount" parameterType="Map" resultType="int">
+		select count(*) from dorm_public
+		<where>
+			 <if test="_parameter.containsKey('public_week')"> 
+        		and public_week like CONCAT(CONCAT('%',#{public_week,jdbcType=VARCHAR} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('public_notice')"> 
+        		and public_notice like CONCAT(CONCAT('%',#{public_notice,jdbcType=VARCHAR} ),'%')
+    		</if>
+    	</where>
+	</select>
+	
+	<select id="findById" parameterType="Long" resultType="DormPublic">
+		select public_id,public_week,public_notice from dorm_public where  public_id=#{_parameter}
+	</select>
+</mapper>

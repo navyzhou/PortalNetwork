@@ -1,0 +1,173 @@
+﻿<table id="filesInfo"> </table>
+
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+<div id="fileUploaddialog" class="easyui-dialog" style="width:500px;height:300px;padding:10px 20px" 
+	closed="true" buttons="#dlg-buttons">
+	<form id="filesUploadForm" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<br/>
+					<div class="fitem">
+						<label>选择文件:</label>
+						<input type="file" id="uploadFile" name="tr_file" class="easyui-textbox" required="true"><br/><br/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<a href="javascript:changeUploadFile()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">上传</a> 
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#filesInfo").edatagrid({
+			url : "../json/filesAction_getAllFiles",//查询时加载的URL
+			destroyUrl:'../json/filesAction_delFiles',//删除时的URL
+			idField : "file_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 10,//分页大小
+			pageList : [ 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-search",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "管理文件",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'file_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'desc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			remoteSort:false,
+			columns : [[ //每个列具体内容
+			{
+				field : 'file_id',
+				title : '文件编号',
+				width : 100,
+				align:'center'
+			},{
+				field : 'file_ids',
+				title : '文件编号',
+				width : 100,
+				sortable:true,
+				align:'center'
+			}, {
+				field : 'file_savename',
+				title : '文件名',
+				align:'center',
+				width : 100,
+			}, {
+				field : 'file_upload',
+				title : '上传时间',
+				align:'center',
+				width : 100,
+			} , {
+				field:'_operate',
+				title : '操作',
+				align:'center',
+				width : 20,
+				formatter:function(value,rowData){
+					var str="<a href='../../dataInfo/file/"+rowData.file_name+"' title='下载' target='_blank'>下载</a>";
+					return str;
+				}
+			} 
+			] ],
+			toolbar : [ {
+				text : '上传',
+				iconCls : 'icon-add',
+				handler : function() {
+					openUploadFileDialog();
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#filesInfo').edatagrid('destroyRow');
+					//del();
+				}
+			} ]
+		});
+	});
+	
+	
+	function  del(){
+		var rows = $("#filesInfo").datagrid("getChecked");
+		var id = rows[0].file_id;
+		$.post("../json/filesAction_delFiles",{'id':id},function(data){
+			$("#filesInfo").datagrid('load',{});
+		});
+	}
+	
+	
+	
+	//打开上传文件对话框
+	function openUploadFileDialog(){
+		$("#fileUploaddialog").dialog('open').dialog('setTitle', '上传文件');
+	}
+	
+	//上传文件
+	function changeUploadFile(){
+		progress();
+		$.ajaxFileUpload({
+			url:'../json/filesAction_uploadFile',
+			secureuri:false,
+			dataType:"json",
+			fileElementId:['uploadFile'],	//文件选择栏id
+			success:function(data){
+				$.messager.progress('close');
+				data = parseInt($.trim(data));
+				if(data!=0){
+					$.messager.show({
+						title:'成功提示',
+						msg:'文件上传成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+					
+					//关闭对话框
+					$("#fileUploaddialog").dialog('close');
+					
+					//刷新数据
+					$("#filesInfo").datagrid('load',{});
+				}else{
+					$.messager.alert('错误提示','文件上传失败,请重新选择','error');
+				}
+			},
+			error:function(data,e){
+				$.messager.progress('close');
+				$.messager.alert('错误提示','文件上传失败','error');
+			}
+		});
+	}
+</script>

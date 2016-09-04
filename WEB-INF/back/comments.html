@@ -1,0 +1,150 @@
+﻿<table id="comments"> </table>
+
+
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+<div align="right"><br></div><script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#comments").edatagrid({
+			url : "../json/commentsAction_getCommentsForBack",//查询时加载的URL
+			//saveUrl:"../json/messagesAction_addmessages",//添加时加载的URL
+			//updateUrl:"../json/messagesAction_updateComments",//修改时加载的URL
+			destroyUrl:'../json/commentsAction_delComments',//删除时的URL
+			idField : "comm_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-save",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "评论管理",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'comm_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'asc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			remoteSort:false,
+			columns : [[ //每个列具体内容
+			{
+				field : 'comm_id',
+				title : '编号',
+				width : 50,
+				align:'center'
+			}, {
+				field : 'temp1',
+				title : '对应文章',
+				align:'center',
+				width : 50
+			}, {
+				field : 'comm_publish',
+				title : '留言人',
+				align:'center',
+				width : 50
+			}, {
+				field : 'comm_ip',
+				title : 'ip地址',
+				align:'center',
+				width : 50
+			}, {
+				field : 'comm_content',
+				title : '评论',
+				align:'center',
+				width : 100
+			}] ],
+			toolbar : [ {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#comments').edatagrid('destroyRow');
+				}
+			}]
+		});
+	})
+	
+	//自定义validType 
+	$.extend($.fn.validatebox.defaults.rules, {  
+    //验证汉字  
+	    CHS: {  
+	        validator: function (value) {  
+	            return /^[\u0391-\uFFE5]+$/.test(value);  
+	        },  
+	        message: 'The input Chinese characters only.'  
+	    },  
+	    //移动手机号码验证  
+	    Mobile: {//value值为文本框中的值  
+	        validator: function (value) {  
+	            var reg = /^1[3|4|5|8|9]\d{9}$/;  
+	            return reg.test(value);  
+	        },  
+	        message: '请输入正确的电话号码'  
+	    },  
+	    //国内邮编验证  
+	    ZipCode: {  
+	        validator: function (value) {  
+	            var reg = /^[0-9]\d{5}$/;  
+	            return reg.test(value);  
+	        },  
+	        message: 'The zip code must be 6 digits and 0 began.'  
+	    },  
+	  //数字  
+	    Number: {  
+	        validator: function (value) {  
+	            var reg =/^[0-9]*$/;  
+	            return reg.test(value);  
+	        },  
+	        message: 'Please input number.'  
+	    },  
+	    //时间比较
+	    DateCheck:{
+	    	validator: function (date) {  
+	          	var myDate = new Date();
+				var b=myDate.getFullYear()+"-"+(myDate.getMonth()+1)+"-"+myDate.getDate();
+			    var arr = date.split("-");
+			    var starttime = new Date(arr[0], arr[1], arr[2]);
+			    var starttimes = starttime.getTime();
+			
+			    var arrs = b.split("-");
+			    var lktime = new Date(arrs[0], arrs[1], arrs[2]);
+			    var lktimes = lktime.getTime();
+			    
+			    return starttimes<=lktimes;
+	        },  
+	        message: '设置的时间大于现在的时间，请检查.'  
+	    },
+	    PhoneandTel: {  
+	        validator: function (value) {  
+	            var reg =/^(0\d{2,3}-)?\d{7,8}(-\d{3,4})?$|(^(13[0-9]|15[0|3|6|7|8|9]|18[8|9])\d{8}$)/; 
+	    		return reg.test(value); 
+	        },  
+	        message: '输入的电话号码有误,请改正.'  
+	    },
+	    
+	})  
+</script>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据编号或链接名或链接地址查询 -->
+	<select id="getAllLost" parameterType="Links" resultType="Losts">
+		select lost_id,lost_detail,lost_time,lost_place,lost_relation,lost_status from lost
+		
+	</select>
+
+	<!-- 分页查询 -->
+	<select id="getByPageLost" parameterType="PageParams" resultType="Losts">
+		<choose>
+			<when test="pid!=null and pageNo!=null and pageNum!=null">
+				<choose>
+					<when test="pid==1">
+					select lost_id,lost_detail,lost_time ,lost_place,lost_relation,lost_status,rn from (
+						select lost_id,lost_detail,lost_time,lost_place,lost_relation,lost_status, rownum rn from (
+							select l.lost_id,l.lost_detail,to_char(l.lost_time,'yyyy-mm-dd') lost_time,l.lost_place,l.lost_relation,l.lost_status from lost l where l.lost_status=1 or l.lost_status=2 order by l.lost_id desc)
+								where rownum &lt;=#{max}) where rn>#{min}
+					</when>
+					<when test="pid==2">
+						select lost_id,lost_detail,lost_time ,lost_place,lost_relation,lost_status,rn from (
+							select lost_id,lost_detail,lost_time,lost_place,lost_relation,lost_status, rownum rn from (
+								select l.lost_id,l.lost_detail,to_char(l.lost_time,'yyyy-mm-dd') lost_time,l.lost_place,l.lost_relation,l.lost_status from lost l where l.lost_status=3 or l.lost_status=4 order by l.lost_id desc)
+									where rownum &lt;=#{max}) where rn>#{min}
+					</when>
+					<otherwise>
+						
+					</otherwise>
+				</choose>
+			</when>
+			<when test="pageNo!=null and pageNum!=null">
+			select lost_id,lost_detail,lost_time ,lost_place,lost_relation,lost_status,rn from (
+				select lost_id,lost_detail,lost_time,lost_place,lost_relation,lost_status, rownum rn from (
+					select l.lost_id,l.lost_detail,to_char(l.lost_time,'yyyy-mm-dd') lost_time,l.lost_place,l.lost_relation,l.lost_status from lost l order by l.lost_id desc)
+						where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select lost_id,lost_detail,to_char(lost_time,'yyyy-mm-dd'),lost_place,lost_relation,lost_status from lost
+			</otherwise>
+		</choose>
+	</select>
+
+	<!--添加链接  -->
+	<insert id="addLost" parameterType="Losts">
+		<choose>
+			<when test="lost_email!=null and lost_pwd!=null">
+				insert into lost values(seq_lost_id.nextval,#{lost_detail},to_date(#{lost_time},'yyyy-mm-dd'),#{lost_place},#{lost_relation},#{lost_status},#{lost_email},#{lost_pwd},null,null)
+			</when>
+			<otherwise>
+				insert into lost values(seq_lost_id.nextval,#{lost_detail},to_date(#{lost_time},'yyyy-mm-dd'),#{lost_place},#{lost_relation},#{lost_status},'','',null,null)
+			</otherwise>
+		</choose>
+	</insert>
+	
+	<!-- 修改链接 -->
+	<update id="updateLost" parameterType="Losts">
+		update lost
+		<set>
+			<if test="lost_detail!=null">
+				lost_detail=#{lost_detail},
+			</if>
+			<if test="lost_time!=null">
+				lost_time=to_date(#{lost_time},'yyyy-mm-dd'),
+			</if>
+			<if test="lost_place!=null">
+				lost_place=#{lost_place},
+			</if>
+			<if test="lost_relation!=null">
+				lost_relation=#{lost_relation},
+			</if>
+			<if test="lost_status!=null">
+				lost_status=#{lost_status},
+			</if>
+		</set>
+		where lost_id=#{lost_id}
+	</update>
+	
+	<!-- 多条删除链接 -->
+	<delete id="delLost" parameterType="int">
+		delete from lost where lost_id=#{_parameter}
+	</delete>
+	
+	<!-- 查询链接总数 -->
+	<select id="getLostsTotal" parameterType="int" resultType="int">
+		<choose>
+			<when test="_parameter!=null">
+				<choose>
+					<when test="_parameter==1">
+						select count(*) from lost where lost_status=1 or lost_status=2
+					</when>
+					<when test="_parameter==2">
+						select count(*) from lost where lost_status=3 or lost_status=4
+					</when>
+				</choose>
+			</when>
+			<otherwise>
+				select count(*) from lost
+			</otherwise>
+		</choose>
+		
+	</select>
+	
+	<select id="findByMap" parameterType="Map" resultType="Losts">
+	select lost_id,lost_detail,lost_time,lost_place,lost_relation,lost_status from(
+		select lost_id,lost_detail,to_char(lost_time,'yyyy-mm-dd') lost_time,lost_place,lost_relation,lost_status,rownum rn from lost
+		<where>
+		     <if test="_parameter.containsKey('lost_id')">  
+        		and lost_id like CONCAT(CONCAT('%',#{lost_id} ),'%') 
+    		</if>
+    		 <if test="_parameter.containsKey('lost_time')">  
+        		AND lost_time like to_date(#{lost_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		 <if test="_parameter.containsKey('lost_place')">  
+        		and lost_place like CONCAT(CONCAT('%',#{lost_place} ),'%')
+    		</if>
+    		 <if test="_parameter.containsKey('lost_relation')">  
+        		and lost_relation like CONCAT(CONCAT('%',#{lost_relation} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('lost_status')">  
+        		AND lost_status = #{lost_status,jdbcType=VARCHAR}  
+    		</if>
+    		<if test="_parameter.containsKey('max')">  
+        		AND	rownum &lt;=#{max} order by lost_id desc) 
+    		</if>
+    		
+		</where>
+		<if test="_parameter.containsKey('min')">  
+        		where rn>#{min} 
+    	</if>
+	</select>
+	
+	<select id="findByMapCount" parameterType="Map" resultType="int">
+	
+		select count(*) from lost
+		<where>
+		    <if test="_parameter.containsKey('lost_id')">  
+        		and lost_id like CONCAT(CONCAT('%',#{lost_id} ),'%') 
+    		</if>
+    		 <if test="_parameter.containsKey('lost_time')">  
+        		AND lost_time like to_date(#{lost_time,jdbcType=VARCHAR},'yyyy-mm-dd')
+    		</if>
+    		 <if test="_parameter.containsKey('lost_place')">  
+        		and lost_place like CONCAT(CONCAT('%',#{lost_place} ),'%')
+    		</if>
+    		 <if test="_parameter.containsKey('lost_relation')">  
+        		and lost_relation like CONCAT(CONCAT('%',#{lost_relation} ),'%')
+    		</if>
+    		<if test="_parameter.containsKey('lost_status')">  
+        		AND lost_status = #{lost_status,jdbcType=VARCHAR}  
+    		</if>
+    		
+		</where>
+		
+	</select>
+</mapper>

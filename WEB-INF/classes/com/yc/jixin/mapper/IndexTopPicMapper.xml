@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 查所有 -->
+	<select id="getIndexTopPic" resultType="IndexTopPic">
+		select indexTopPic_id,indexTopPic_name,indexTopPic_word from indexTopPic
+	</select>
+	
+	<!-- 查询总条数 -->
+	<select id="getIndexTopPicTotal" resultType="Integer">
+		select count(*) from indexTopPic
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addIndexTopPic" parameterType="IndexTopPic">
+		insert into indexTopPic values(#{indexTopPic_id},#{indexTopPic_name},#{indexTopPic_word},null,null)
+	</insert>
+	
+	<!-- 删除 -->
+	<delete id="delIndexTopPic" parameterType="Long">
+		delete from indexTopPic where indexTopPic_id = #{indexTopPic_id}
+	</delete>
+	
+	<!-- 修改 -->
+	<update id="updateIndexTopPic" parameterType="IndexTopPic">
+		update indexTopPic 
+		<set>
+			<if test="indexTopPic_word!=null and indexTopPic_word!=''">
+				indexTopPic_name = #{indexTopPic_name}
+			</if>
+			<if test="indexTopPic_word!=null and indexTopPic_word!=''">
+				indextoppic_word = #{indexTopPic_word}
+			</if>
+		</set>	 
+		where indextoppic_id = #{indexTopPic_id}
+	</update>
+</mapper>

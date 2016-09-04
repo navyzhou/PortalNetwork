@@ -1,0 +1,30 @@
+@charset "utf-8";
+/* CSS Document */
+.jumbotron p {
+    font-size: 15px;
+    font-weight: 200;
+    margin-bottom: 15px;
+}
+.amore{
+	float:right;
+	margin-right:10px;
+}
+.author{
+	text-align:right;
+}
+
+
+#myimg{
+	text-align: center;	
+}
+
+#myimg img{
+	 width: 80%;
+}
+#really-cool-viode{
+	margin-top:20px;
+}
+
+#mymedia{
+	margin-top:10px;
+}

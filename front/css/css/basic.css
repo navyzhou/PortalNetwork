@@ -1,0 +1,203 @@
+body{
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#08498c), color-stop(100%,#bcd6f0));
+	background: -moz-linear-gradient(top, rgba(8,73,140,1) 0%, rgba(188,214,240,1) 100%);
+	background: -o-linear-gradient(top, #bcd6f0 0%,#08498c 100%);
+	background: -ms-linear-gradient(top, #08498C 0%, #BCD6F0 100%);
+	background: linear-gradient(center top , #08498C 0%, #BCD6F0 100%);
+	filter: progid:DXImageTransform.Microsoft.Gradient( StartColorStr='#08498c', EndColorStr='#bcd6f0', GradientType=0);
+}
+
+body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6 { font-family: Microsoft YaHei;}
+.navbar-static-top .container,
+.navbar-fixed-top .container,
+.navbar-fixed-bottom .container {
+    width:1150px;
+}
+.container {
+	width:1150px !important;
+}
+
+.nav .dropdown-menu {
+    background-clip: padding-box;
+    background-color:#3C72A9;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
+    display: none;
+    float: left;
+    font-size: 15px;
+    left: 0;
+    list-style: outside none none;
+    margin: 2px 0 0;
+    min-width: 160px;
+    padding: 5px 0;
+    position: absolute;
+    text-align: left;
+    top: 100%;
+    z-index: 1000;
+}
+
+
+nav .dropdown-menu > li > a:hover,
+nav .dropdown-menu > li > a:focus {
+	color:#fff;
+  text-decoration: none;
+  background-color:#0E4C92;
+}
+/*
+	导航
+*/
+.nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
+    background-color:#3CC;
+    border-color: #337ab7;
+}
+
+.navbar {
+	background:#0E4C92 ;	/*导航背景颜色*/
+    border: 0px solid #e7e7e7;
+    min-height: 50px;
+    position: relative;
+	margin-bottom:0px;
+	font-size:16px;
+}
+
+.navbar-nav  li  a{
+	color:#fff;		/*导航字体颜色*/
+	padding-left:20px;
+	padding-right:21px;
+}
+
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+  text-decoration: none;	 /*设置鼠标移动到导航的颜色*/
+  background-color:#122D62;
+  
+}
+
+.navbar .nav > li .dropdown-menu {
+	margin: 0;
+}
+.navbar .nav > li:hover .dropdown-menu {
+	display: block;
+}
+
+
+.panel {
+    background-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.panel-default > .panel-heading {
+   /* background-color:#644C98;*/
+   /*  background-color:#02325A;*/
+/*  background-color:#003366;*/
+  /* background-color:#003399;*/
+   /* background-color:#6184BA;*/
+   /* background-color:#333399;*/
+  /*   background-color:#336699;*/
+       background-color:#006699;
+	border-radius:2px 2px 0px 0px;
+    border-bottom: 3px solid #015CAF;
+    margin: 0px 0 2px 0px;
+    padding: 10px 0px 10px 15px;
+	color:#FFF;
+}
+
+.panel-body {
+    background:#F2F2F2;
+    padding: 10px;
+}
+
+.panel-heading a{
+	margin-right:15px;
+	float:right;
+}
+
+
+.panel-footer {
+    background-color:#F2F2F2;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    border-top: 1px solid #ddd;
+    padding: 10px 15px;
+}
+
+/* .list-group-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    display: block;
+    margin-bottom: -1px;
+    padding: 10px 15px;
+    position: relative;
+} */
+
+.list-group-item a {
+	width:100%;
+	display:block;
+}
+
+.mytime{
+	float:right;
+}
+
+
+/*
+	底部
+
+footer{
+	background-color:#0E4C92;
+}*/
+
+footer p{
+	margin-top:10px;
+	text-align:center
+}
+
+#footerborder{
+	border-top:1px solid #000;
+}
+
+
+.myleft{
+	margin-left:10px;
+}
+.myxinleft{
+	margin-right:10px;
+}
+
+.mynavtop{
+	margin-top:20px;
+}
+
+.mycenter {
+	text-align: center;
+}
+
+.footlogo{
+	width: 20px;
+	height: 15px;
+}
+
+.progressBar{
+	width: 100%;
+	height: 100%;
+	background: #000;
+	position: absolute;
+	top:0;
+	left: 0;
+	z-index: 10;
+	opacity:0.7;
+}
+.progressBarDiv{
+	color:#fff;
+	font-size:35px;
+	left:500px;
+	top:220px;
+	position:fixed;
+	width:400px;
+	height:50px;
+	opacity:1;
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<typeAliases>
+		<package name="com.yc.jixin.beans"/>
+	</typeAliases>
+	
+	
+	<mappers>
+		<mapper resource="com/yc/jixin/mapper/MessageMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/LinksMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/LostsMapper.xml"/> 
+		<mapper resource="com/yc/jixin/mapper/PhoneInfoMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/AdminMapper.xml"/> 
+		<mapper resource="com/yc/jixin/mapper/TrendsTypeMapper.xml"/> 
+		<mapper resource="com/yc/jixin/mapper/TrendsMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/FilesMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/VideoMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/FilesMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/LeadersMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/JobInfoMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/CommentsMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/IndexTopPicMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/DormNoticeMapper.xml"/>
+		<mapper resource="com/yc/jixin/mapper/DormPublicMapper.xml"/>
+	</mappers>
+</configuration>

@@ -1,0 +1,224 @@
+﻿<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+
+.showAddPic{
+	opacity:0;
+	z-index: 20;
+	margin-left: 200px;
+	margin-top: -40px;
+	position: absolute;
+}
+</style>
+
+<div id="addRollingNewslg" style="width:1000px;height:600px;padding:10px 20px" closed="true" buttons="#dlg-buttons">
+	<div class="ftitle">发布滚动新闻</div>
+	<form id="addRollingNewsfm" method="post" enctype="multipart/form-data">
+		<table style="width:1000px;">
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>新闻标题:</label> <input id="arn_title" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="arn_picDiv">
+						图片:<input type="file" name="tr_files" id="arn_pic" accept="image/gif,image/jpeg,image/png" multiple="true" onchange="previewMultipleImage(this,'showPicLook')"/>
+						(jpg,jpeg,png,gif)
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>作者:</label> <input id="arn_author" class="easyui-textbox">
+					</div>
+				</td>
+				<td>
+					<div class="fitem">
+						视频:<input type="file" name="tr_files" id="arn_video" accept="audio/mp4,video/mp4,MPEG-4 Audio/Video"/>
+							(mp4,avi,rmvb)
+							<input type="hidden" id="harn_video"/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>来源:</label> <input id="arn_from" class="easyui-textbox" required="true" value="计信学院">
+					</div>
+				</td>
+				<td>
+					<div class="fitem">
+						文件:<input type="file" name="tr_files" id="arn_file" accept="application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip"  multiple="true"/>
+							(doc,wps,xls,txt,zip,rar)
+							<input type="hidden" id="harn_file"/>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:400px;resize:none"  id="arn_article"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:addRollingNews()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">发布</a> 
+</div>
+
+<script>
+	CKEDITOR.replace( 'arn_article', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+	CKEDITOR.editorConfig = function( config ){
+	    // Define changes to default configuration here. For example:
+	    config.language = 'zh-cn';
+	    config.uiColor = '#AADC6E';
+	    config.resize_enabled = false;
+	};
+</script>
+
+
+<script type="text/javascript">
+	$(function(){
+		$("#arn_author").val($("#welcomName").html());
+	});
+	
+	function showPic(){
+		$("#arn_showPic").css("opacity",1);
+	}
+	function movePic(){
+		$("#arn_showPic").css("opacity",0);
+	}
+	//
+	function addRollingNews(){
+		var title =html2Escape( $("#arn_title").val());
+		var author =html2Escape( $("#arn_author").val());
+		var from =html2Escape( $("#arn_from").val());
+		var article = CKEDITOR.instances.arn_article.getData();
+		
+		if($.trim(title)==''){
+			$.messager.alert('错误提示','标题不能为空','error');
+			return;
+		}
+		
+		if($.trim(author)==''){
+			$.messager.alert('错误提示','作者不能为空','error');
+			return;
+		}
+		
+		if($.trim(from)==''){
+			$.messager.alert('错误提示','来源不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(article))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		if($.trim($("#arn_pic").val())==''){
+			$.messager.alert('错误提示','图片不能为空','error');
+			return;
+		}
+		
+		if($("#arn_pic").val()=="" && $("#arn_video").val()=="" && $("#arn_file").val()==""
+		){
+			$.post("../json/trendsAction_addTrends",{
+			'trends.tr_title':title,
+			'trends.tr_author':author,
+			'trends.tr_from':from,
+			'trends.tr_article':article,
+			'trends.types_id':10001,
+			'trends.tr_pic':'',
+			'trends.tr_file':''
+			},function(data){
+				data = parseInt($.trim(data));
+				if(data>0){
+					$.messager.show({
+						title:'成功提示',
+						msg:'滚动新闻发布成功！',
+						timeout:2000,
+						showType:'slide'
+					});
+					//关闭选项卡
+					$('#tabs').tabs('close','发布滚动新闻'); 
+					
+					//刷新数据
+					$("#rolling_news").datagrid('load',{"trends.types_id":10001});
+				}else{
+					$.messager.alert('错误提示','新闻发布失败,请重试','error');
+				}
+			});
+		}else{
+			progress();//显示进度条
+			$.ajaxFileUpload({
+				url:'../json/trendsAction_uploadFiles',
+				secureuri:false,
+				dataType:'json',
+				data:{'trends.types_id':10001,'trends.tr_title':title,'trends.tr_author':author,'trends.tr_from':from,'trends.tr_article':article,'trends.tr_pic':'','trends.tr_file':''},
+				fileElementId:['arn_pic','arn_video','arn_file'],	//图片文本框id
+				success:function(data){
+					$.messager.progress('close');//关闭进度条
+					data = parseInt($.trim(data));
+					if(data>=0){
+						$.messager.show({
+							title:'成功提示',
+							msg:'文件上传成功！',
+							timeout:2000,
+							showType:'slide'
+						});
+						//关闭选项卡
+						$('#tabs').tabs('close','发布滚动新闻'); 
+						
+						//刷新数据
+						$("#rolling_news").datagrid('load',{"trends.types_id":10001});
+					}else{
+						$.messager.alert('错误提示','文件上传失败,请选择规定格式的文件','error');
+					}
+				},
+				error:function(data,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert('错误提示','发布失败，请检查网络...','error');
+				}
+			});
+		}
+	}
+</script>

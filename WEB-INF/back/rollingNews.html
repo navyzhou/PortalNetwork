@@ -1,0 +1,611 @@
+﻿<table id="rolling_news"></table>
+<div id="w" class="easyui-dialog" data-options="title:'简介详细查看',inline:true,closed:true" style="width:1150px;height:400px;padding:10px;">
+		<div id="dimg"></div>
+</div>
+
+<div id="drolling_news" class="easyui-dialog" data-options="title:'搜索框',inline:true,closed:true" style="width:1000px;height:80px;padding:10px;">
+		<label for="drotr_title">标题关键字:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:100px" type="text" id="drotr_title" name="drotr_title"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="drotr_author">作者:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="drotr_author" name="drotr_author"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="drotr_from">来源:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="drotr_from" name="drotr_from"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="javascript:void(0);" onClick="searchFrolling()" class="easyui-linkbutton" iconCls="icon-search">查找</a>
+</div>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+#dimg img{
+	width: 200px;
+	height: 150px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+.littlebutton{
+	color:blue;
+	margin-left:5px;
+}
+
+.hidden {
+	opacity: 0;
+	position: absolute;
+	z-index: 10;
+	width:25px;
+	margin-left:-190px;
+	margin-top:-5px;
+}
+.showPic{
+	opacity:0;
+	position: absolute;
+	z-index: 20;
+	margin-left: 300px;
+	margin-top: -50px;
+}
+</style>
+
+
+
+<div id="rollingNewsDialog" class="easyui-dialog" style="width:1000px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#dlg-buttons">
+	<form id="tform" method="post" enctype="multipart/form-data">
+		<table style="width: 900px">
+			<tr>
+				<td>
+					<div class="fitem">
+						<label>新闻标题:</label> <input id="rn_title" class="easyui-textbox" required="true">
+						<input type="hidden" id="rn_tid"/><!-- 存类型id的隐藏域 -->
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="rn_picDiv" onmouseover="showPic()" onmouseout="movePic()">
+						
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>作者:</label> <input id="rn_author" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="rn_videoDiv">
+						
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>来源:</label> <input id="rn_from" class="easyui-textbox" required="true">
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="rn_fileDiv">
+						
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width:800px;height:400px;resize:none"  id="rn_article"></textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:updateRollingNews()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">修改</a> 
+</div>
+
+<script src="../js/showpic.js" type="text/javascript"></script>
+<script>
+	CKEDITOR.replace( 'rn_article', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+</script>
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#rolling_news").edatagrid({
+			url : "../json/trendsAction_getTrendsByType",//查询时加载的URL
+			queryParams:{"trends.types_id":10001},
+			//destroyUrl : "../json/trendsAction_delRollingNews",//删除时的URL
+			destroyUrl : "../json/trendsAction_delTrends",
+			idField : "tr_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-search",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "滚动新闻管理",
+			nowrap : true,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'tr_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'desc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			remoteSort:false,
+			columns : [[ //每个列具体内容
+			{
+				field : 'tr_ids',
+				title : '',
+				width : 50,
+				align:'center',
+				checkbox:true
+			},{
+				field : 'tr_id',
+				title : '新闻编号',
+				width : 50,
+				sortable:true,
+				align:'center',
+			}, {
+				field : 'tr_title',
+				title : '标题',
+				align:'center',
+				width : 100,
+			}, {
+				field : 'tr_author',
+				title : '作者',
+				align:'center',
+				width : 50,
+			}, {
+				field : 'tr_from',
+				title : '来源',
+				align:'center',
+				width : 50,
+			}, {
+				field : 'tr_pic',
+				title : '图片',
+				align:'center',
+				width : 100,
+				formatter:function(value,row,index){
+					if(value!=null && value!=""){
+						return  "<a href=\"javascript:lookInfo('"+value+"')\" >查看</a> ";
+					}else{
+						return "无图片";
+					}
+				}
+			} ] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布滚动新闻','loginAction_backGoTo_addRollingNews');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#rolling_news').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findrollInfo();
+				}
+			} ]
+		});
+	});
+	
+	function lookInfo(value){
+		$("#w").dialog('open');
+		var imgs=value.split(";");
+		var imgsrc="";
+		for(var i=0;i<imgs.length;i++){
+			imgsrc+="<img src='../"+imgs[i]+"'/>&nbsp;&nbsp;&nbsp;&nbsp;";
+		}
+		$("#dimg").html(imgsrc);
+	}
+	
+	function findrollInfo(){
+		$("#drolling_news").dialog('open');
+	}
+	
+	//查找
+	function searchFrolling(){
+		$("#drolling_news").dialog('close');
+		var drotr_title=$.trim($("#drotr_title").val());
+		var drotr_author=$.trim($("#drotr_author").val());
+		var drotr_from=$.trim($("#drotr_from").val());
+		
+		datagrid = $("#rolling_news").edatagrid({
+			url : "../json/trendsAction_findTrendsByMap",//查询时加载的URL
+			queryParams:{"trends.types_id":10001,"trends.tr_title":drotr_title,"trends.tr_author":drotr_author,"trends.tr_from":drotr_from,"page":1,"rows":5},
+			
+			toolbar : [ {
+				text : '返回',
+				iconCls : 'icon-undo',
+				handler : function() {
+					backrolling_news();
+				}
+			}, '-',{
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布滚动新闻','loginAction_backGoTo_addRollingNews');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#rolling_news').edatagrid('destroyRow');
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findrollInfo();
+				}
+			}  ]
+		});
+		$("#dnotr_title").val("");
+		$("#dnotr_from").val("");
+		$("#dnotr_author").val("");
+	}
+
+	function backrolling_news(){
+		datagrid = $("#rolling_news").edatagrid({
+			url : "../json/trendsAction_getTrendsByType",//查询时加载的URL
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布滚动新闻','loginAction_backGoTo_addRollingNews');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					turnToJixinNews();
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findrollInfo();
+				}
+			}  ]
+		});
+	}
+	//打开修改对话框
+	function openDialog(){
+		var rows = $("#rolling_news").datagrid("getChecked");
+		if(rows.length<=0){
+			$.messager.show({
+				title:'错误提示',
+				msg:'请选择要修改的数据',
+				timeout:2000,
+				showType:'slide'
+			});
+			return;
+		}
+		var id = rows[0].tr_id;
+		$('#rollingNewsDialog').dialog('open').dialog('setTitle', '修改滚动新闻');
+		
+		$.post('../json/trendsAction_getTrendsById',{'trends.tr_id':id},function(data){
+			var tid = data.jsonObject[0].tr_id;
+			var title = data.jsonObject[0].tr_title;
+			var author = data.jsonObject[0].tr_author;
+			var from = data.jsonObject[0].tr_from;
+			var article = data.jsonObject[0].tr_article;
+			var picPath = data.jsonObject[0].tr_pic;
+			var videoid = data.jsonObject[0].tr_video;
+			var fileid = data.jsonObject[0].tr_file;
+			var videoName = data.jsonObject[0].temp1;
+			var fileName = data.jsonObject[0].temp2;
+			$("#rn_tid").val(tid);
+			$("#rn_title").val(htmlEscape(title));
+			$("#rn_author").val(htmlEscape(author));
+			$("#rn_from").val(htmlEscape(from));
+			
+			
+			//判断该动态有没有图片，决定在图片位置显示的内容
+			if(picPath != null && picPath !=""){
+				$("#rn_picDiv").html("图片:<a class='littlebutton'  href='javascript:look_Pic(\""+picPath+"\")'>详细查看</a><a class='littlebutton' href='javascript:delPic(\""+picPath+"\")'>删除</a>"+
+					"<input type='hidden' id='hrn_pic'/>");	//存图片路径的隐藏域
+				$("#hjxn_pic").val(picPath);		//将图片路径放在隐藏域中，若不修改，则作为上传依据
+				
+				$("#hrn_pic").val(picPath);		//将图片路径放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#rn_picDiv").html("图片:<input type='file' name='tr_files' id='rn_replacePic' accept='image/gif,image/jpeg,image/png' multiple='true'  onchange=\"previewMultipleImage(this,'showPicLook')\"/>"+
+				"<input type='hidden' id='hrn_pic'/>");		//存图片路径的隐藏域
+			}
+			
+			
+			//判断该动态有没有视频
+			if(videoName != null && videoName !=""){
+				$("#rn_videoDiv").html("视频:<span id='rn_video' style='margin-right:70px'></span>"+
+					"<a class='littlebutton'>替换</a><a class='littlebutton' href='javascript:delVideo()'>删除</a>"+
+					"<input type='file' class='hidden' name='tr_files' id='rn_replaceVideo' accept='audio/mp4,video/mp4,MPEG-4 Audio/Video' onchange='videoChanged()' />"+
+					"<input type='hidden' id='hrn_video'/>");		//存视频id的隐藏域
+				$("#rn_video").html(videoName);
+				$("#hrn_video").val(videoid);	//将视频id放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#rn_videoDiv").html("视频:<input type='file' name='tr_files'  id='rn_replaceVideo' accept='audio/mp4,video/mp4,MPEG-4 Audio/Video'/>"+
+				"<input type='hidden' id='hrn_video'/>");		//存视频id的隐藏域
+			}
+			//判断该动态有没有文件
+			if(fileid != null && fileid !=""){
+				$("#rn_fileDiv").html("文件:<a href='javascript:checkFileList(\""+fileid+"\")'> 查看详情</a>"+
+				"<a class='littlebutton' href='javascript:delFile()'>删除</a>"+
+				"<input type='hidden' id='hrn_file'/>");		//存文件id的隐藏域
+				$("#hrn_file").val(fileid);		//将文件id放在隐藏域中，若不修改，则作为上传依据
+			}else{
+				$("#rn_fileDiv").html("文件:<input type='file' name='tr_files' id='rn_replaceFile' accept='application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip' multiple='true'/>"+
+				"<input type='hidden' id='hrn_file'/>");		//存文件id的隐藏域
+			}
+			CKEDITOR.instances.rn_article.setData( article );
+		},"json");
+	}
+	
+	function checkFileList(fileid){
+		$('#showFileList').dialog('open').dialog('setTitle', '文件列表');
+		$.post('../json/filesAction_checkFileNameByName',{'filesid':fileid},function(data){
+			if(data.rows!==null){
+				var filename = "";
+				$.each(data.rows,function(index,item){
+					filename+=item.file_savename+"<br/>";
+				});
+				$("#showfilename").html(filename);
+			}else{
+				alert("未找到对应文件，可能已被删除");
+			}
+		});
+	}
+	
+    function picChanged(){
+    	$("#rn_replacePic").css("opacity",1);
+		$("#rn_pic").css("opacity",0);
+    }
+    
+    function videoChanged(){
+    	$("#rn_replaceVideo").css("opacity",1);
+		$("#rn_video").css("opacity",0);
+    }
+    
+    function fileChanged(){
+    	$("#rn_replaceFile").css("opacity",1);
+		$("#rn_file").css("opacity",0);
+    }
+    
+    //修改动态时删除图片
+	function delPic(picPath){
+		$("#rn_picDiv").html("图片:<input type='file' name='tr_files' id='rn_replacePic' accept='image/gif,image/jpeg,image/png' multiple='true' onchange=\"previewMultipleImage(this,'showPicLook')\"/>"+
+				"<input type='hidden' id='hrn_pic'/>");	
+		$("#hrn_pic").val("");
+	}	
+	
+	//修改动态时删除视频
+	function delVideo(){
+		$("#hrn_video").val("");
+		$("#rn_replaceVideo").css("opacity",0);
+		$("#rn_video").css("opacity",0);
+	}
+	
+	//修改动态时删除文件
+	function delFile(){
+		$("#rn_fileDiv").html("文件:<input type='file' name='tr_files' id='rn_replaceFile' accept='application/vnd.ms-excel,application/vnd.ms-works,text/plain,application/msword,aplication/zip' onchange='jxn_fileChanged()' multiple='true'/>"+
+		"<input type='hidden' id='hrn_file'/>");
+	}
+
+	//点击修改按钮修改，检查要上传内容
+	function updateRollingNews( ){
+		var tid = $("#rn_tid").val();
+		var title =html2Escape( $("#rn_title").val());
+		var author =html2Escape( $("#rn_author").val());
+		var from = html2Escape($("#rn_from").val());
+		var pic = $("#hrn_pic").val();
+		var video = $("#hrn_video").val();
+		var file = $("#hrn_file").val();
+		var article = CKEDITOR.instances.rn_article.getData();
+		/* if($.trim(pic)==''){
+			$.messager.alert('错误提示','图片不能为空','error');
+			return;
+		} */
+		
+		if($.trim(title)==''){
+			$.messager.alert('错误提示','标题不能为空','error');
+			return;
+		}
+		
+		if($.trim(author)==''){
+			$.messager.alert('错误提示','作者不能为空','error');
+			return;
+		}
+		
+		if($.trim(from)==''){
+			$.messager.alert('错误提示','来源不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(article))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		
+		//如果没有要上传的
+		if($("#rn_replacePic").val()=="" && $("#rn_replaceVideo").val()=="" && $("#rn_replaceFile").val()==""){
+			$.post('../json/trendsAction_updateTrends',{
+				'trends.tr_id':tid,
+				'trends.tr_title':title,
+				'trends.tr_author':author,
+				'trends.tr_from':from,
+				'trends.tr_pic':pic,
+				'trends.tr_article':article,
+				'trends.tr_video':video,
+				'trends.tr_file':file
+			},function(data){
+				data = parseInt($.trim(data));
+				if(data>=1){
+					$.messager.show({
+						title:'成功提示',
+						msg:'滚动新闻修改成功！',
+						timeout:2000,
+						showType:'slide'
+					});	
+					//关闭窗口
+					$('#rollingNewsDialog').window('close');
+					
+					//刷新数据
+					$("#rolling_news").datagrid('load',{"trends.types_id":10001});
+				}else{
+					$.messager.alert('错误提示','修改失败,请重试','error');
+				}
+			});
+		}
+		//如果有要上传的
+		else{
+			progress();//显示进度条
+			$.ajaxFileUpload({
+				url:'../json/trendsAction_updateAndUploadTrends',
+				secureuri:false,
+				data:{'trends.tr_id':tid,
+					'trends.tr_title':title,
+					'trends.tr_author':author,
+					'trends.tr_from':from,
+					'trends.tr_article':article,
+					'trends.tr_pic':pic,
+					'trends.tr_video':video,
+					'trends.tr_file':file
+				},
+				dataType:'json',
+				fileElementId:['rn_replacePic','rn_replaceVideo','rn_replaceFile'],	//图片文本框id
+				success:function(data){
+					$.messager.progress('close');//关闭进度条
+					data = parseInt($.trim(data));
+					if(data>=0){
+						$.messager.show({
+							title:'成功提示',
+							msg:'文件上传成功！',
+							timeout:2000,
+							showType:'slide'
+						});
+						//关闭窗口
+						$('#rollingNewsDialog').window('close');
+						
+						//刷新数据
+						$("#rolling_news").datagrid('load',{"trends.types_id":10001});
+					}else{
+						$.messager.alert('错误提示','文件上传失败,请选择规定格式的文件','error');
+					}
+				},
+				error:function(data,e){
+					$.messager.progress('close');//关闭进度条
+					$.messager.alert('错误提示','发布失败，请检查网络...','error');
+				}
+			});
+		}
+	}
+	
+	function turnToJixinNews( ){
+		var rows = $("#rolling_news").datagrid("getChecked");
+		var id = rows[0].tr_id;
+		$.post('../json/trendsAction_delTrends',{'id':id},function(data){
+			data = parseInt($.trim(data));
+			if(data>0){
+				$.messager.show({
+					title:'成功提示',
+					msg:'滚动新闻修改成功！',
+					timeout:2000,
+					showType:'slide'
+				});	
+				//关闭窗口
+				$('#rollingNewsDialog').window('close');
+				
+				//刷新数据
+				$("#rolling_news").datagrid('load',{"trends.types_id":10001});
+			}else{
+				$.messager.alert('错误提示','修改失败,请重试','error');
+			}
+		});
+	}
+	
+	function ShowImage(value, img) {
+		img.src = value;
+		img.style.visibility = "visible";
+		alert(value);
+	}
+	
+	//新建Tab
+	function Open(text, url) { 
+         if ($("#tabs").tabs('exists', text)) { 
+            $('#tabs').tabs('select', text); 
+        }else { 
+            $('#tabs').tabs('add', { 
+                title : text, 
+                closable : true, 
+                href : url 
+            }); 
+        } 
+    }
+    
+    function showPic(){
+    	var imgsrc=$("#rn_previewImg").attr('src');	
+		if(imgsrc!=null && imgsrc!=''){
+			$("#rn_showPic").css("opacity",1);
+		}
+		
+	}
+	function movePic(){
+		$("#rn_showPic").css("opacity",0);
+	}
+    
+</script>

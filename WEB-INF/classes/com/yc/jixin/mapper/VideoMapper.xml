@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yc.jixin.dao.VideosDao">
+	<!-- 获取所有视频 -->
+	<select id="getAllVideos" resultType="Videos">
+		select video_id,video_name,video_upload,video_download from videos
+	</select>
+	
+	<!-- 查询总条数 -->
+	<select id="getVideoTotal" resultType="Integer">
+		select count(*) from videos
+	</select>
+	
+	
+	<!-- 添加视频 -->
+	<insert id="addVideo" parameterType="Videos">
+		insert into videos values(#{video_id},#{video_name},#{video_savename},sysdate,0,null,null)
+	</insert>
+	
+	<!-- 根据video_id查video_name -->
+	<select id="getVideoById" resultType="Videos">
+		select video_id,video_name,video_upload,video_download from videos
+		 where video_id = #{video_id}
+	</select>
+	
+	<select id="getByPageVideo" parameterType="PageParams" resultType="Videos">
+	<choose>
+			<when test="pageNo!=null and pageNum!=null">
+			select video_id,video_name,video_savename,video_upload,video_download from (
+				select video_id,video_name,video_savename,video_upload,video_download,rownum rn from (
+					select video_id,video_name,video_savename,to_char(video_upload,'yyyy-mm-hh') video_upload,video_download from videos order by video_id desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select file_id,file_name,file_savename,to_char(file_upload,'yyyy-mm-hh')file_upload,file_download from files order by file_id desc
+			</otherwise>
+		</choose>
+		
+	</select>
+	
+	<!-- 删除动态 -->
+	<delete id="delVideo" parameterType="Double">
+		delete from videos where video_id = #{_parameter}
+	</delete>
+</mapper>

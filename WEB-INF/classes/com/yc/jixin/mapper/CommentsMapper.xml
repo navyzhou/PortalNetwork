@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 查所有评论 -->
+	<select id="getComments" resultType="Comments">
+		select * from comments
+		<where>
+			<if test="comm_id != null">
+				comm_id = #{comm_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 为后台管理显示用，temp1显示评论对应文章的标题 -->
+	<select id="getCommentsForBack" resultType="Comments">
+		select c.comm_id,c.tr_id,c.comm_publish ,c.comm_ip ,c.comm_date ,c.comm_content, t.tr_title as temp1
+		from trends t,comments c
+		<where>
+			t.tr_id = c.tr_id
+			<if test="comm_id != null">
+				and c.tr_id = #{tr_id}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询总条数 -->
+	
+	<!-- 根据id查 -->
+	
+	<!-- 添加 -->
+	
+	<!-- 删除 -->
+	<delete id="delComments" parameterType="Integer">
+		delete from comments where comm_id = #{comm_id}
+	</delete>
+	
+	
+</mapper>

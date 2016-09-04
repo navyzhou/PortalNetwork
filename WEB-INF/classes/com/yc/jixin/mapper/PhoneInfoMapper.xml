@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="/">
+	<!-- 根据编号查 编号为null 查询所有 -->
+	<select id="getAllPhoneInfo" parameterType="int" resultType="PhoneInfo">
+		select pho_id,pho_addr,pho_tel from phoneInfo
+		<if test="_parameter!=null">
+			pho_id=#{_parameter}
+		</if>
+	</select>
+	
+	<!-- 分页查找 -->
+	<select id="getByPagePhoneInfo" parameterType="PageParams" resultType="PhoneInfo">
+		<choose>
+			<when test="pageNo!=null and pageNum!=null">
+				select pho_id,pho_addr,pho_tel from (
+					select pho_id,pho_addr,pho_tel,rn from (
+						select p.*,rownum rn from phoneInfo p order by p.pho_id desc) where rownum &lt;=#{max}) where rn>#{min}
+			</when>
+			<otherwise>
+				select pho_id,pho_addr,pho_tel from phoneInfo order by pho_id
+			</otherwise>
+		</choose>
+	
+	</select>
+	
+	<!-- 添加 -->
+	<insert id="addPhoneInfo" parameterType="PhoneInfo">
+		insert into phoneInfo values(seq_pho_id.nextval,#{pho_addr},#{pho_tel},null,null)
+	</insert>
+	
+	<!-- 修改 -->
+	<update id="updatePhoneInfo" parameterType="PhoneInfo">
+		update  phoneInfo
+		<set>
+			<if test="pho_addr!=null">
+				pho_addr=#{pho_addr},
+			</if>
+			<if test="pho_tel!=null">
+				pho_tel=#{pho_tel}
+			</if>
+		</set>
+		<where>
+			pho_id=#{pho_id}
+		</where>
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="delPhoneInfo" parameterType="int">
+		delete from phoneInfo where pho_id=#{_parameter}
+	</delete>
+	
+	<!-- 查询总数 -->
+	<select id="getPhoneInfoTotal" resultType="int">
+		select count(*) from phoneInfo
+	</select>
+	
+</mapper>

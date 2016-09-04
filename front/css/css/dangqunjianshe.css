@@ -1,0 +1,29 @@
+@charset "utf-8";
+/* CSS Document */
+.mytime{
+	float:right;
+}
+
+.mypanela{
+	float:right;
+}
+
+.amore{
+	float:right;
+	margin-right:10px;
+}
+.page-header {
+	border-radius:0px 9px 0px 0px;
+    border-bottom: 1px solid #eee;
+    margin: 0px 0 2px 0px;
+    padding: 10px 0px 10px 15px;
+}
+
+.panel-body {
+    background: none repeat scroll 0 0 #f9f9f9;
+    padding: 10px;
+}
+
+.mytime{
+	float:right;
+}

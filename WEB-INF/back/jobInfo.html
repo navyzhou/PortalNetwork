@@ -1,0 +1,402 @@
+﻿<table id="jobInfo"> </table>
+
+<div id="djobInfo" class="easyui-dialog" data-options="title:'搜索框',inline:true,closed:true" style="width:1000px;height:80px;padding:10px;">
+		<label for="djob_com">招聘单位:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:100px" type="text" id="djob_com" name="djob_com"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="djob_post">职位及人数:&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="djob_post" name="djob_post"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="djob_place">工作地点 :&nbsp;&nbsp;</label>
+		<input class="easyui-validatebox" style="width:120px" type="text" id="djob_place" name="djob_place"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+		<label for="djob_time">时间:&nbsp;&nbsp;</label>
+		<input class="easyui-datebox" style="width:100px" type="text" id="djob_time" name="djob_time"/>&nbsp;&nbsp;&nbsp;&nbsp;
+		
+	&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="javascript:void(0);" onClick="searchFji()" class="easyui-linkbutton" iconCls="icon-search">查找</a>
+</div>
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+.littlebutton{
+	color:blue;
+	margin-left:5px;
+}
+
+.hidden {
+	opacity: 0;
+	position: absolute;
+	z-index: 10;
+	width:25px;
+	margin-left:-190px;
+	margin-top:-5px;
+}
+</style>
+
+
+
+<div id="jobInfoUpdateDialog" class="easyui-dialog" style="width:800px;height:600px;padding:10px 20px" 
+	closed="true" buttons="#dlg-buttons">
+	<form id="tform" method="post" enctype="multipart/form-data">
+		<table>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							招聘单位:
+						</label>
+						<input id="job_com" class="easyui-textbox" required="true">
+						<input type="hidden" id="jid" />
+						<!-- 存类型id的隐藏域 -->
+					</div>
+				</td>
+				<td>
+					<div class="fitem" id="picDiv" style="inline">
+						<!--<input type="hidden" id="htr_pic"/> 存图片路径的隐藏域 -->
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							职位及人数:
+						</label>
+						<input id="job_post" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="fitem" style="inline">
+						<label>
+							工作地点:
+						</label>
+						<input id="job_place" class="easyui-textbox" required="true">
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<div class="fitem">
+						<textarea style="width: 800px; height: 400px; resize: none"
+							id="job_intro" name="job_intro">
+						</textarea>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<div id="dlg-buttons" class="dialog-button">
+	<a href="javascript:updateJobInfo()" class="easyui-linkbutton c6" iconCls="icon-ok" style="width:90px;margin-right:200px">修改</a> 
+</div>
+
+
+<script>
+	CKEDITOR.replace( 'job_intro', {
+		on: {
+			// Check for availability of corresponding plugins.
+			pluginsLoaded: function( evt ) {
+				var doc = CKEDITOR.document, ed = evt.editor;
+				if ( !ed.getCommand( 'bold' ) )
+					doc.getById( 'exec-bold' ).hide();
+				if ( !ed.getCommand( 'link' ) )
+					doc.getById( 'exec-link' ).hide();
+			}
+		}
+	});
+</script>
+
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#jobInfo").edatagrid({
+			url : "../json/jobInfoAction_getAllJobInfo",//查询时加载的URL
+			destroyUrl : "../json/jobInfoAction_delJobInfo",
+			idField : "job_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,	
+			iconCls : "icon-tip",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "招贤纳士",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'job_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'desc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			remoteSort:false,
+			columns : [[ //每个列具体内容
+				{
+					field : 'job_id',
+					width : 50,
+					align:'center',
+					checkbox:true
+				}, {
+					field : 'job_com',
+					title : '招聘单位',
+					align:'center',
+					width : 90,
+				}, {
+					field : 'job_post',
+					title : '职位及人数',
+					align:'center',
+					width : 60,	
+				}, {
+					field : 'job_place',
+					title : '工作地点',
+					align:'center',
+					width : 50,
+				}, {
+					field : 'job_time',
+					title : '职位发布时间',
+					align:'center',
+					width : 50,
+				} 
+			 ] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布招聘信息','loginAction_backGoTo_addJobInfo');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#jobInfo').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openJobInfoUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findjiInfo();
+				}
+			} ]
+		});
+	})
+	//打开查找框
+	function findjiInfo(){
+		$("#djobInfo").dialog('open');
+	}
+
+	//查找
+	function searchFji(){
+		$("#djobInfo").dialog('close');
+		var djob_com=$.trim($("#djob_com").val());
+		var djob_post=$.trim($("#djob_post").val());
+		var djob_place=$.trim($("#djob_place").val());
+		var djob_time=$.trim($("#djob_time").datebox("getValue"));
+		datagrid = $("#jobInfo").edatagrid({
+			url : "../json/jobInfoAction_getJobInfoByMap",//查询时加载的URL
+			queryParams:{"jobInfo.job_com":djob_com,"jobInfo.job_post":djob_post,"jobInfo.job_place":djob_place,"jobInfo.job_time":djob_time,"page":1,"rows":5},
+			
+			toolbar : [ {
+				text : '返回',
+				iconCls : 'icon-undo',
+				handler : function() {
+					backjobInfo();
+				}
+			}, '-', {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布招聘信息','loginAction_backGoTo_addJobInfo');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#jobInfo').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openJobInfoUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findjiInfo();
+				}
+			} ]
+		});
+		
+	}
+
+	function backjobInfo(){
+		datagrid = $("#jobInfo").edatagrid({
+			url : "../json/jobInfoAction_getAllJobInfo",//查询时加载的URL
+			toolbar : [  {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					Open('发布招聘信息','loginAction_backGoTo_addJobInfo');
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#jobInfo').edatagrid('destroyRow')
+				}
+			}, '-', {
+				text : '更新',
+				iconCls : 'icon-edit',
+				handler : function() {
+					openJobInfoUpdateDialog();
+				}
+			}, '-', {
+				text : '查找',
+				iconCls : 'icon-search',
+				handler : function() {
+					findjiInfo();
+				}
+			} ]
+		});
+	}
+
+	//打开修改对话框
+	function openJobInfoUpdateDialog(){
+		var rows = $("#jobInfo").datagrid("getChecked");
+		if(rows.length<=0){
+			$.messager.show({
+				title:'错误提示',
+				msg:'请选择要修改的数据',
+				timeout:2000,
+				showType:'slide'
+			});
+			return;
+		}
+		var id = rows[0].job_id;
+		$('#jobInfoUpdateDialog').dialog('open').dialog('setTitle', '修改招聘信息');
+		//$('#foodfm').form('clear');
+		
+		$.post('../json/jobInfoAction_getJobInfoById',{'jobInfo.job_id':id},function(data){
+			var jid = data.jsonObject[0].job_id;
+			var com = data.jsonObject[0].job_com;
+			var post = data.jsonObject[0].job_post;
+			var place = data.jsonObject[0].job_place;
+			var intro = data.jsonObject[0].job_intro;
+			
+			$("#jid").val(jid);
+			$("#job_com").val(htmlEscape(com));
+			$("#job_post").val(htmlEscape(post));
+			$("#job_place").val(htmlEscape(place));
+			//$("#job_com").val(com);
+			//$("#job_post").val(post);
+			//$("#job_place").val(place);
+			
+			//富文本编辑器显示内容
+			CKEDITOR.instances.job_intro.setData( intro );
+		},"json");
+	}
+	
+
+	
+	//修改
+	function updateJobInfo(){
+		var id = $("#jid").val();
+		//var com =$("#job_com").val();
+		//var post = $("#job_post").val();
+		//var place = $("#job_place").val();
+		var com =html2Escape( $("#job_com").val());
+		var post =html2Escape( $("#job_post").val());
+		var place =html2Escape( $("#job_place").val());
+		var intro = CKEDITOR.instances.job_intro.getData();
+		if($.trim(com)==''){
+			$.messager.alert('错误提示','招聘单位不能为空','error');
+			return;
+		}
+		
+		if($.trim(post)==''){
+			$.messager.alert('错误提示','职位及人数不能为空','error');
+			return;
+		}
+		
+		if($.trim(place)==''){
+			$.messager.alert('错误提示','工作地点不能为空','error');
+			return;
+		}
+		
+		if($.trim(delTag(intro))==''){
+			$.messager.alert('错误提示','内容不能为空','error');
+			return;
+		}
+		$.post('../json/jobInfoAction_updateJobInfo',{
+			'jobInfo.job_id' : id,
+			'jobInfo.job_com' : com,
+			'jobInfo.job_post' : post,
+			'jobInfo.job_place' : place,
+			'jobInfo.job_intro' : intro
+		},function(data){
+			data = parseInt($.trim(data));
+			if(data>=1){
+				$.messager.show({
+					title:'成功提示',
+					msg:'通知修改成功！',
+					timeout:2000,
+					showType:'slide'
+				});
+				//关闭窗口
+				$('#jobInfoUpdateDialog').window('close');
+				
+				//刷新数据
+				$("#jobInfo").datagrid('load',{});
+			}else{
+				$.messager.alert('错误提示','修改失败,请重试','error');
+			}
+		},'json');
+	}
+	
+	
+	function Open(text, url) { 
+         if ($("#tabs").tabs('exists', text)) { 
+            $('#tabs').tabs('select', text); 
+        }else { 
+            $('#tabs').tabs('add', { 
+                title : text, 
+                closable : true, 
+                href : url 
+            }); 
+        } 
+    } 
+
+	function ShowImage(value, img) {
+		img.src = value;
+		img.style.visibility = "visible";
+	}
+</script>

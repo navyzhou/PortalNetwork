@@ -1,0 +1,154 @@
+﻿<table id="linksInfo"> </table>
+
+
+<style type="text/css">
+#fm {
+	margin: 0;
+	padding: 10px 30px;
+}
+
+.ftitle {
+	font-size: 14px;
+	font-weight: bold;
+	padding: 5px 0;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #ccc;
+}
+
+.fitem {
+	margin-bottom: 5px;
+}
+
+.fitem label {
+	display: inline-block;
+	width: 80px;
+}
+
+.fitem input {
+	width: 160px;
+}
+</style>
+
+<script type="text/javascript">
+	var datagrid;
+	var rowEditor = undefined; //用于存放当前要编辑的行
+	$(function() {
+		datagrid = $("#linksInfo").edatagrid({
+			url : "../json/linksAction_getLinksInfo",//查询时加载的URL
+			saveUrl:"../json/linksAction_addLinksInfo",//添加时加载的URL
+			updateUrl:"../json/linksAction_updateLinksInfo",//修改时加载的URL
+			destroyUrl:'../json/linksAction_delLinksInfo',//删除时的URL
+			idField : "link_id", ///标识、会记录我们选中项的id、不一定是id、通常使用主键
+			pagination : true,//显示分页
+			pageSize : 5,//分页大小
+			pageList : [ 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ],//每页的分页数
+			fit : true,//自动补全
+			fitColumns : true,
+			iconCls : "icon-save",//图标
+			rownumbers : true,//行号     最左边显示行号
+			title : "链接管理",
+			nowrap : false,//表格中的文字可以换行、默认是false、不能换行、这样在文字很多的时候就看不到全部：使用真实的数据去测试
+			sortName : 'link_id',//设置默认排序时的 字段（必须是field中的一个字段）
+			sortOrder : 'asc',//是按照升序还是降序排序 但是仅仅添加这两个字段并不会自动排序、这样写的意义就是前台会自动的向后台传递两个参数：sort order,我们可以在后台查询记录的时候进行排序
+			columns : [[ //每个列具体内容
+			{
+				field : 'link_name',
+				title : '名称',
+				align:'center',
+				width : 100,
+				editor : {
+					type : 'validatebox',
+					options : {
+						required : true
+					}
+				}
+			}, {
+				field : 'link_address',
+				title : '地址(如:http://www.baidu.com)',
+				align:'center',
+				width : 100,
+				editor : {
+					type : 'validatebox',
+					options : {
+						required : true,
+						validType:'url'
+					}
+				}
+			},{
+				field:'action',title:'操作',width:70,align:'center',
+				formatter:function(value,row,index){
+					if (row.editing){
+						var s = '<a href="#" onclick="saverow('+index+')">保存</a> ';
+						var c = '<a href="#" onclick="cancelrow('+index+')">取消</a>';
+						return s+c;
+					} else {
+						var e = '<a href="#" onclick="editrow('+index+')">编辑</a> ';
+						return e;
+					}
+				}
+			}
+		] ],
+			toolbar : [ {
+				text : '增加',
+				iconCls : 'icon-add',
+				handler : function() {
+					$('#linksInfo').edatagrid('addRow',{
+						index:0
+					});
+				}
+			}, '-', {
+				text : '删除',
+				iconCls : 'icon-remove',
+				handler : function() {
+					$('#linksInfo').edatagrid('destroyRow');
+				}
+			} ],
+			onBeforeEdit:function(index,row){
+				row.editing = true;
+				$('#linksInfo').datagrid('refreshRow', index);
+			},
+				onAfterEdit:function(index,row){
+				row.editing = false;
+				$('#linksInfo').datagrid('refreshRow', index);
+			},
+				onCancelEdit:function(index,row){
+				row.editing = false;
+				$('#linksInfo').datagrid('refreshRow', index);
+			},
+				onSave:function(index,row){
+				$('#linksInfo').datagrid('reload', {});
+			}
+		});
+	});
+	
+	function cancelrow(index){
+		$('#linksInfo').datagrid('cancelEdit', index);
+	}
+	
+	function editrow(index){
+		$('#linksInfo').edatagrid('beginEdit', index);
+	}
+	
+	function saverow(index){
+		$('#linksInfo').edatagrid('endEdit', index);
+		$('#linksInfo').edatagrid('reload',{});
+	}
+	
+	
+	function Open(text, url) { 
+         if ($("#tabs").tabs('exists', text)) { 
+            $('#tabs').tabs('select', text); 
+        }else { 
+            $('#tabs').tabs('add', { 
+                title : text, 
+                closable : true, 
+                href : url 
+            }); 
+        } 
+    } 
+
+	function ShowImage(value, img) {
+		img.src = value;
+		img.style.visibility = "visible";
+	}
+</script>
